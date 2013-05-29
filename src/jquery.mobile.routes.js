@@ -1,4 +1,4 @@
-/*!
+/*
  * jQuery mobile routes plugin v0.1.0 - Copyright (c) 2013 Wonseop Kim
  * Released under MIT license
  */
