@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
+	<title>jQuery Mobile routes demo</title>
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.css" />
+	<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.js"></script>
+	<script src="../lib/iscroll.js"></script>
+	<script src="../lib/jquery.svg.js"></script>
+	<script src="../src/jquery.mobile.routes.js"></script>
+	<script>
+		var resizeContent = function ( page ) {
+			var content = page.find('.ui-content'),
+				paddings = parseInt( content.css( 'padding-top' ), 10 ) + parseInt( content.css( 'padding-bottom' ), 10 ),
+				borders = parseInt( content.css( 'border-top-width' ), 10 ) + parseInt( content.css( 'border-bottom-width' ), 10 ),
+				windowHeight =  $( window ).height(),
+				sectionsHeight = 0;
+
+			page.find( '.ui-footer, .ui-header' ).each( function () {
+				sectionsHeight += $( this ).outerHeight();
+			});
+
+			content.height( windowHeight - sectionsHeight - paddings - borders );
+		};
+
+		$( document ).on( "routescreate", function ( e ) {
+			var scroller = new window.iScroll( e.target, { hScrollbar: false, vScrollbar: false, zoom: true } );
+
+			$( window ).on( "pageshow resize throttledresize", function () {
+				resizeContent( $( ".ui-page-active" ) );
+				scroller.refresh();
+			});
+		});
+
+	</script>
+</head>
+<body>
+
+	<div data-role="page">
+		<div data-role="header" data-position="fixed">
+			<h1>jQuery Mobile Routes</h1>
+		</div><!-- /header -->
+
+		<div data-role="content">
+			<div id="routesTest" 
+				data-role="routes"
+				data-db="../data/seoul_metro.json"
+				data-interval="2"
+				data-margin="10"
+				style="height:100%;">
+			</div>
+		</div><!-- /content -->
+
+		<div data-role="footer" data-position="fixed">
+			<h4>&copy; 2013 Wonseop Kim</h4>
+		</div><!-- /footer -->
+	</div><!-- /page -->
+
+</body>
+</html>
