@@ -24,6 +24,7 @@
 		_languageData: null,
 		_lines: [],
 		_stations: [],
+		_stationsMap: [],
 
 		_create: function () {
 			var self = this,
@@ -154,27 +155,24 @@
 						maxY = ( maxY < coord[1] ) ? coord[1] : maxY;
 
 						//stations
-						if ( !this._stations[coord[0]] ) {
-							this._stations[coord[0]] = [];
+						if ( !this._stationsMap[coord[0]] ) {
+							this._stationsMap[coord[0]] = [];
 						}
 
-						if ( !this._stations[coord[0]][coord[1]] ) {
+						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
 							station.radius = stationRadius;
 							station.font = stationFont;
 							if ( this._languageData ) {
 								station.label.text =  this._languageData[station.label.text] || station.label.text;
 							}
-							this._stations[coord[0]][coord[1]] = station;
-						} else if ( !this._stations[coord[0]][coord[1]].exchange ) {
+							this._stations.push( this._stationsMap[coord[0]][coord[1]] = station );
+						} else if ( !this._stationsMap[coord[0]][coord[1]].exchange ) {
+							station = this._stationsMap[coord[0]][coord[1]];
 							station.style = exchangeStyle;
 							station.radius = exchangeRadius;
 							station.font = exchangeFont;
 							station.exchange = true;
-							if ( this._languageData ) {
-								station.label.text =  this._languageData[station.label.text] || station.label.text;
-							}
-							this._stations[coord[0]][coord[1]] = station;
 						}
 
 						// lines
@@ -254,7 +252,7 @@
 		},
 
 		_drawElements: function () {
-			var i, j,
+			var i,
 				svg = this._svg,
 				options = this.options,
 				interval = options.interval,
@@ -270,63 +268,53 @@
 				group,
 				text;
 
-			for ( i = 0; i <= this._rightBottom[0]; i += 1 ) {
-				if ( !stations[i] ) {
-					continue;
+			for ( i = 0; i < stations.length; i += 1 ) {
+				station = stations[i];
+				label = station.label;
+				coordinates = station.coordinates;
+				position = [ margin + interval * coordinates[0], margin + interval * coordinates[1] ];
+				stationRadius = station.radius;
+
+				// draw station
+				svg.circle( position[0], position[1], stationRadius, station.style );
+
+				group = svg.group();
+
+				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
+
+				// draw station name
+				text = svg.text( group, label.text || "?",
+					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
+				);
+
+				switch ( label.position || "s" ) {
+				case "w" :
+					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
+					break;
+				case "e" :
+					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius / 2 ];
+					break;
+				case "s" :
+					labelPosition = [ position[0] - text.getBBox().width / 2, position[1] + stationRadius + text.getBBox().height ];
+					break;
+				case "n" :
+					labelPosition = [ position[0] - text.getBBox().width / 2, position[1] - stationRadius - text.getBBox().height / 3 ];
+					break;
+				case "nw" :
+					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] - stationRadius / 2 - text.getBBox().height / 3  ];
+					break;
+				case "ne" :
+					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] - stationRadius / 2 - text.getBBox().height / 3 ];
+					break;
+				case "sw" :
+					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius + text.getBBox().height / 2  ];
+					break;
+				case "se" :
+					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius + text.getBBox().height / 2 ];
+					break;
 				}
 
-				for ( j = 0; j <= this._rightBottom[1]; j += 1 ) {
-					if ( !stations[i][j] ) {
-						continue;
-					}
-
-					station = stations[i][j];
-					label = station.label;
-					coordinates = station.coordinates;
-					position = [ margin + interval * coordinates[0], margin + interval * coordinates[1] ];
-					stationRadius = station.radius;
-
-					// draw station
-					svg.circle( position[0], position[1], stationRadius, station.style );
-
-					group = svg.group();
-
-					labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
-
-					// draw station name
-					text = svg.text( group, label.text || "?",
-						{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
-					);
-
-					switch ( label.position || "s" ) {
-					case "w" :
-						labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
-						break;
-					case "e" :
-						labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius / 2 ];
-						break;
-					case "s" :
-						labelPosition = [ position[0] - text.getBBox().width / 2, position[1] + stationRadius + text.getBBox().height ];
-						break;
-					case "n" :
-						labelPosition = [ position[0] - text.getBBox().width / 2, position[1] - stationRadius - text.getBBox().height / 3 ];
-						break;
-					case "nw" :
-						labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] - stationRadius / 2 - text.getBBox().height / 3  ];
-						break;
-					case "ne" :
-						labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] - stationRadius / 2 - text.getBBox().height / 3 ];
-						break;
-					case "sw" :
-						labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius + text.getBBox().height / 2  ];
-						break;
-					case "se" :
-						labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius + text.getBBox().height / 2 ];
-						break;
-					}
-
-					svg.change( group, { transform: "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" }  );
-				}
+				svg.change( group, { transform: "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" }  );
 			}
 		},
 
