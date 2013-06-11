@@ -1,4 +1,4 @@
-/*
+/*!
  * jQuery mobile routes plugin v0.1.0 - Copyright (c) 2013 Wonseop Kim
  * Released under MIT license
  */
@@ -16,7 +16,10 @@
 			initSelector: ":jqmData(role='routes')"
 		},
 
+		_svgNS: 'http://www.w3.org/2000/svg',
+		_xlinkNS: 'http://www.w3.org/1999/xlink',
 		_svg: null,
+
 		_gridRange: [],
 		_data: {},
 		_leftTop: [],
@@ -31,8 +34,14 @@
 				view = self.element,
 				svgContainer = $( "<div>" ).appendTo( view );
 
-			svgContainer.addClass( "ui-routes-svg ui-routes-container" ).svg();
-			self._svg = svgContainer.svg( "get" );
+			svgContainer.addClass( "ui-routes-svg ui-routes-container" );
+
+			self._svg = $( document.createElementNS( this._svgNS, "svg" ) )
+				.attr( {
+					'version': '1.1',
+					'width': "100%",
+					'height': "100%"
+				} ).appendTo( svgContainer )[0];
 
 			view.addClass( "ui-routes" );
 
@@ -41,14 +50,8 @@
 				self._setOption( key, value );
 			});
 
-			if ( window.navigator.userAgent.match( /(firefox)\/?\s*(\.?\d+(\.\d+)*)/i ) &&
-				document.readyState !== "complete" ) {
-				$( window ).on( "pageshow resize", function () {
-					self._svg._svg.setAttribute( "width", "100%" );
-					self._svg._svg.setAttribute( "height", "100%" );
-				});
-			} else {
-				self.refresh();
+			if ( document.readyState === "complete" ) {
+				self.refresh( true );
 			}
 		},
 
@@ -97,12 +100,13 @@
 		},
 
 		_clear: function () {
-			this._svg.clear( true );
+			while ( this._svg.firstChild ) {
+				this._svg.removeChild( this._svg.firstChild );
+			}
 		},
 
 		_processData: function ( data ) {
 			var i, j, k,
-				svg = this._svg,
 				lines = data.lines,
 				options = this.options,
 				interval = options.interval,
@@ -143,7 +147,7 @@
 				lineStyle = lines[i].style.line;
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
-					linePath = svg.createPath();
+					linePath = "";
 					for ( k = 0; k < branch.length; k += 1 ) {
 						station = branch[k];
 						coord = station.coordinates;
@@ -181,7 +185,7 @@
 
 						if ( xPosPrev !== -1 && yPosPrev !== -1 ) {
 							if ( xPosPrev === xPos || yPosPrev === yPos ) {
-								linePath.line( xPos, yPos );
+								linePath += "L" + xPos + "," + yPos;
 								direction = ( xPosPrev === xPos ) ? "h" : "v";
 							} else {
 								// Catmull-Rom to Cubic Bezier conversion matrix 
@@ -196,10 +200,12 @@
 								controlPoint[2] = ( xPosPrev + 6 * xPos - convertCoord( control2[0] ) ) / 6;
 								controlPoint[3] = ( yPosPrev + 6 * yPos - convertCoord( control2[1] ) ) / 6;
 
-								linePath.curveC( controlPoint[0], controlPoint[1], controlPoint[2], controlPoint[3], xPos, yPos );
+								linePath += "C" + controlPoint[0] + "," + controlPoint[1] +
+									" " + controlPoint[2] + "," + controlPoint[3] +
+									" " + xPos + "," + yPos;
 							}
 						} else {
-							linePath.move( xPos, yPos );
+							linePath += "M" + xPos + "," + yPos;
 						}
 
 						xPosPrev = xPos;
@@ -225,7 +231,6 @@
 
 			var self = this,
 				options = self.options,
-				svg = self._svg,
 				style = { stroke: 'blue', strokeWidth: 1 },
 				interval = options.interval,
 				margin = options.margin,
@@ -234,26 +239,37 @@
 				i;
 
 			for ( i = 0; i <= cw; i += interval ) {
-				svg.line( 0.5 + i + margin, margin, 0.5 + i + margin, ch - margin, style );
+				this._node( null, "line", {
+					x1: 0.5 + i + margin,
+					y1: 0.5 + i + margin,
+					x2: margin,
+					y2: 0.5 + i + margin
+				}, style );
 			}
 			for ( i = 0; i <= ch; i += interval ) {
-				svg.line( margin, 0.5 + i + margin, cw - margin, 0.5 + i + margin, style );
+				this._node( null, "line", {
+					x1: margin,
+					y1: 0.5 + i + margin,
+					x2: cw - margin,
+					y2: 0.5 + i + margin
+				}, style );
 			}
 		},
 
 		_drawLines: function () {
 			var i,
-				svg = this._svg,
-				lines = this._lines;
+				lines = this._lines,
+				length = lines.length;
 
-			for ( i = 0; i < lines.length; i += 1 ) {
-				svg.path( null, lines[i].path, lines[i].style );
+			for ( i = 0; i < length; i += 1 ) {
+				this._node( null, "path", {
+					d: lines[i].path
+				}, lines[i].style );
 			}
 		},
 
 		_drawElements: function () {
 			var i,
-				svg = this._svg,
 				options = this.options,
 				interval = options.interval,
 				margin = options.margin,
@@ -276,14 +292,19 @@
 				stationRadius = station.radius;
 
 				// draw station
-				svg.circle( position[0], position[1], stationRadius, station.style );
+				//svg.circle( position[0], position[1], stationRadius, station.style );
+				this._node( null, "circle", {
+					cx: position[0],
+					cy: position[1],
+					r: stationRadius
+				}, station.style );
 
-				group = svg.group();
+				group = this._node( null, "g" );
 
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-				text = svg.text( group, label.text || "?",
+				text = this._text( group, "text", label.text || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
 
@@ -314,25 +335,54 @@
 					break;
 				}
 
-				svg.change( group, { transform: "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" }  );
+				group.setAttribute( "transform", "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" );
 			}
 		},
 
-		refresh: function () {
-			var view, svgContainer, svgElement;
+		_node: function ( parent, name, settings, style ) {
+			var node, key, value,
+				attributes = $.extend( settings, style || {} );
+
+			parent = parent || this._svg;
+			node = parent.ownerDocument.createElementNS( this._svgNS, name );
+
+			for ( key in attributes ) {
+				value = attributes[key];
+				if ( value && ( typeof value !== 'string' || value !== '' ) ) {
+					node.setAttribute( key.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase(), value);
+				}
+			}
+			parent.appendChild( node );
+			return node;
+		},
+
+		_text:  function ( parent, name, value, settings, style ) {
+			var node = this._node( parent, name, settings, style );
+
+			if ( typeof value !== 'string' ) {
+				value = "";
+			}
+
+			node.appendChild( node.ownerDocument.createTextNode( value ) );
+			return node;
+		},
+
+		refresh: function ( redraw ) {
+			var view, svgContainer;
 
 			view = this.element;
 			svgContainer = view.find( "ui-routes-svg" );
-			svgElement = this._svg._svg;
 
 			if ( svgContainer.width() !== view.width() ) {
 				svgContainer.width( view.width() );
 			}
 
-			this._clear();
-			this._drawGrid();
-			this._drawLines();
-			this._drawElements();
+			if ( redraw ) {
+				this._clear();
+				this._drawGrid();
+				this._drawLines();
+				this._drawElements();
+			}
 		}
 	});
 
@@ -341,7 +391,9 @@
 		$.mobile.routes.prototype.enhanceWithin( e.target );
 	});
 
-	$( window ).on( "pagechange resize", function () {
+	$( window ).on( "pagechange", function () {
+		$( ".ui-page-active .ui-routes" ).routes( "refresh", true  );
+	}).on( "resize", function () {
 		$( ".ui-page-active .ui-routes" ).routes( "refresh" );
 	});
 
