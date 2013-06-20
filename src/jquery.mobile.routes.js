@@ -17,7 +17,6 @@
 		},
 
 		_svgNS: 'http://www.w3.org/2000/svg',
-		_xlinkNS: 'http://www.w3.org/1999/xlink',
 		_svg: null,
 
 		_gridRange: [],
@@ -304,7 +303,7 @@
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-				text = this._text( group, "text", label.text || "?", {},
+				text = this._text( group, label.text || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
 
@@ -356,14 +355,20 @@
 			return node;
 		},
 
-		_text:  function ( parent, name, value, settings, style ) {
-			var node = this._node( parent, name, settings, style );
+		_text:  function ( parent, value, settings, style ) {
+			var node = this._node( parent, "text", settings, style ),
+				texts, i;
 
 			if ( typeof value !== 'string' ) {
 				value = "";
 			}
 
-			node.appendChild( node.ownerDocument.createTextNode( value ) );
+			texts = value.split( "\n" );
+			for ( i = 0; i < texts.length; i += 1 ) {
+				this._node( node, "tspan", { x: "0",  y: ( settings.fontSize * i ) }, {} )
+					.appendChild( node.ownerDocument.createTextNode( texts[i] ) );
+			}
+
 			return node;
 		},
 
