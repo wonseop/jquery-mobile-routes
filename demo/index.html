@@ -31,7 +31,14 @@
 			widget = $( "#routesTest" );
 
 			$( window ).on( "pageshow resize throttledresize", function () {
+				var siblingsHeight = 0;
 				resizeContent( $( ".ui-page-active" ) );
+
+				widget.siblings().each( function () {
+					siblingsHeight += $( this ).outerHeight( true );
+				});
+
+				widget.height( widget.parent().height() - siblingsHeight );
 				scroller.refresh();
 			});
 
@@ -50,6 +57,13 @@
 		</div><!-- /header -->
 
 		<div data-role="content">
+			<div id="routesTest"
+				data-role="routes"
+				data-db="../data/seoul_metro.json"
+				data-interval="2"
+				data-margin="10">
+			</div>
+
 			<div data-role="fieldcontain" id="languagueSelection">
 				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 					<legend>Language:</legend>
@@ -60,13 +74,6 @@
 				</fieldset>
 			</div>
 
-			<div id="routesTest" 
-				data-role="routes"
-				data-db="../data/seoul_metro.json"
-				data-interval="2"
-				data-margin="10"
-				style="height:100%;">
-			</div>
 		</div><!-- /content -->
 
 		<div data-role="footer" data-position="fixed">
