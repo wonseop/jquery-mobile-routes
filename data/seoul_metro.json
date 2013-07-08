@@ -3,7 +3,7 @@
 	"stationRadius": 4,
 	"exchangeRadius": 6,
 	"stationFont": {
-		"fontSize": 12
+		"fontSize": 9
 	},
 	"exchangeStyle": {
 		"fill": "white",
@@ -11,7 +11,7 @@
 		"strokeWidth": 2
 	},
 	"exchangeFont": {
-		"fontSize": 14
+		"fontSize": 10
 	},
 	"lines": [{ 
 		"name": "1호선",
@@ -311,7 +311,7 @@
 				{ "coordinates": [ 298, 281 ], "label": { "text": "신용산", "position": "sw" } },
 				{ "coordinates": [ 317, 298 ], "label": { "text": "이촌", "position": "sw" } },
 				{ "coordinates": [ 343, 324 ], "label": { "text": "동작", "position": "ne" } },
-				{ "coordinates": [ 351, 347 ], "label": { "text": "총신대입구(이수)", "position": "sw" } },
+				{ "coordinates": [ 351, 347 ], "label": { "text": "이수", "position": "sw" } },
 				{ "coordinates": [ 350, 380 ], "label": { "text": "사당", "position": "nw" } },
 				{ "coordinates": [ 340, 392 ], "label": { "text": "남태령", "position": "se" } },
 				{ "coordinates": [ 328, 405 ], "label": { "text": "선바위", "position": "se" } },
@@ -458,7 +458,7 @@
 				{ "coordinates": [ 159, 149 ], "label": { "text": "월드컵경기장", "position": "se" } },
 				{ "coordinates": [ 171, 136 ], "label": { "text": "디지털미디어시티", "position": "n" } },
 				{ "coordinates": [ 181, 126 ], "label": { "text": "증산", "position": "se" } },
-				{ "coordinates": [ 192, 116 ], "label": { "text": "새철", "position": "se" } },
+				{ "coordinates": [ 192, 116 ], "label": { "text": "새절", "position": "se" } },
 				{ "coordinates": [ 203, 103 ], "label": { "text": "응암", "position": "nw" } },
 				{ "coordinates": [ 225, 110 ], "label": { "text": "역촌", "position": "s" } },
 				{ "coordinates": [ 257, 108 ], "label": { "text": "불광", "position": "s" } },

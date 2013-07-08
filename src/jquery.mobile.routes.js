@@ -3,7 +3,7 @@
  * Released under MIT license
  */
 
-( function ( $, window, undefined ) {
+( function ( $, window ) {
 	var document = window.document;
 
 	$.widget( "mobile.routes", $.mobile.widget, {
@@ -84,6 +84,12 @@
 				if ( !data || !data.match(/\.(json)$/i) ) {
 					return;
 				}
+
+				if ( !value ) {
+					this._languageData = null;
+					return;
+				}
+
 				data = data.substring( data.lastIndexOf("\\") + 1, data.lastIndexOf(".") ) +
 						"." + value + "." + data.substring( data.lastIndexOf(".") + 1, data.length );
 				$.ajax({
@@ -130,7 +136,6 @@
 				xPos = 0,
 				yPos = 0,
 				linePath,
-				direction = "h",
 				control1,
 				control2,
 				controlPoint = [],
@@ -166,10 +171,8 @@
 							station.style = stationStyle;
 							station.radius = stationRadius;
 							station.font = stationFont;
-							if ( this._languageData ) {
-								station.label.text =  this._languageData[station.label.text] || station.label.text;
-							}
-							this._stations.push( this._stationsMap[coord[0]][coord[1]] = station );
+							this._stationsMap[coord[0]][coord[1]] = station;
+							this._stations.push( station );
 						} else if ( !this._stationsMap[coord[0]][coord[1]].exchange ) {
 							station = this._stationsMap[coord[0]][coord[1]];
 							station.style = exchangeStyle;
@@ -185,7 +188,6 @@
 						if ( xPosPrev !== -1 && yPosPrev !== -1 ) {
 							if ( xPosPrev === xPos || yPosPrev === yPos ) {
 								linePath += "L" + xPos + "," + yPos;
-								direction = ( xPosPrev === xPos ) ? "h" : "v";
 							} else {
 								// Catmull-Rom to Cubic Bezier conversion matrix 
 								//    0       1       0       0
@@ -281,6 +283,7 @@
 				labelPosition = [0, 0],
 				labelAngle = 0,
 				group,
+				stationName,
 				text;
 
 			for ( i = 0; i < stations.length; i += 1 ) {
@@ -291,7 +294,6 @@
 				stationRadius = station.radius;
 
 				// draw station
-				//svg.circle( position[0], position[1], stationRadius, station.style );
 				this._node( null, "circle", {
 					cx: position[0],
 					cy: position[1],
@@ -303,7 +305,14 @@
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-				text = this._text( group, label.text || "?", {},
+
+				if ( this._languageData ) {
+					stationName = this._languageData[station.label.text] || station.label.text;
+				} else {
+					stationName = station.label.text;
+				}
+
+				text = this._text( group, stationName || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
 
