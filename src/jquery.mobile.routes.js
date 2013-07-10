@@ -4,7 +4,51 @@
  */
 
 ( function ( $, window ) {
-	var document = window.document;
+	var document = window.document,
+		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
+		// Thanks Wyatt Baldwin
+		PriorityQueue = {
+			make: function ( opts ) {
+				var T = this,
+					t = {},
+					key;
+
+				opts = opts || {};
+
+				for ( key in T ) {
+					t[key] = T[key];
+				}
+
+				t.queue = [];
+				t.sorter = function ( a, b ) {
+					return a.cost - b.cost;
+				};
+
+				return t;
+			},
+
+			/**
+			* Add a new item to the queue and ensure the highest priority element
+			* is at the front of the queue.
+			*/
+			push: function ( value, cost ) {
+				var item = { value: value, cost: cost };
+
+				this.queue.push( item );
+				this.queue.sort( this.sorter );
+			},
+
+			/**
+			* Return the highest priority element in the queue.
+			*/
+			pop: function () {
+				return this.queue.shift();
+			},
+
+			empty: function () {
+				return this.queue.length === 0;
+			}
+		};
 
 	$.widget( "mobile.routes", $.mobile.widget, {
 		options: {
@@ -27,6 +71,31 @@
 		_lines: [],
 		_stations: [],
 		_stationsMap: [],
+
+		// test
+		_bestWayGraph: {
+			a: {b: 10, d: 1},
+			b: {a: 1, c: 1, e: 1},
+			c: {b: 1, f: 1},
+			d: {a: 1, e: 1, g: 1},
+			e: {b: 1, d: 1, f: 1, h: 1},
+			f: {c: 1, e: 1, i: 1},
+			g: {d: 1, h: 1},
+			h: {e: 1, g: 1, i: 1},
+			i: {f: 1, h: 1}
+		},
+
+		_bestTransperGraph: {
+			a: {b: 10, d: 1},
+			b: {a: 1, c: 1, e: 1},
+			c: {b: 1, f: 1},
+			d: {a: 1, e: 1, g: 1},
+			e: {b: 1, d: 1, f: 1, h: 1},
+			f: {c: 1, e: 1, i: 100 },
+			g: {d: 1, h: 1},
+			h: {e: 1, g: 1, i: 1},
+			i: {f: 1, h: 1}
+		},
 
 		_create: function () {
 			var self = this,
@@ -379,6 +448,94 @@
 			}
 
 			return node;
+		},
+
+		// Dijkstra path-finding functions
+		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
+		// Thanks Wyatt Baldwin
+		_calculateShortestPath: function ( graph, source, destination ) {
+			var predecessors, costs, open,
+				closest,
+				u, v,
+				costU,
+				adjacentNodes,
+				costE,
+				costUTotal,
+				costV,
+				first_visit,
+				msg,
+				nodes = [];
+
+			// Predecessor map for each node that has been encountered.
+			// node ID => predecessor node ID
+			predecessors = {};
+
+			// Costs of shortest paths from s to all nodes encountered.
+			// node ID => cost
+			costs = {};
+			costs[source] = 0;
+
+			// Costs of shortest paths from s to all nodes encountered; differs from
+			// `costs` in that it provides easy access to the node that currently has
+			// the known shortest path from s.
+			// XXX: Do we actually need both `costs` and `open`?
+			open = PriorityQueue.make();
+			open.push( source, 0 );
+
+			while ( !open.empty() ) {
+				// In the nodes remaining in graph that have a known cost from s,
+				// find the node, u, that currently has the shortest path from s.
+				closest = open.pop();
+				u = closest.value;
+				costU = closest.cost;
+
+				// Get nodes adjacent to u...
+				adjacentNodes = graph[u] || {};
+
+				// ...and explore the edges that connect u to those nodes, updating
+				// the cost of the shortest paths to any or all of those nodes as
+				// necessary. v is the node across the current edge from u.
+				for ( v in adjacentNodes ) {
+					// Get the cost of the edge running from u to v.
+					costE = adjacentNodes[v];
+
+					// Cost of s to u plus the cost of u to v across e--this is *a*
+					// cost from s to v that may or may not be less than the current
+					// known cost to v.
+					costUTotal = costU + costE;
+
+					// If we haven't visited v yet OR if the current known cost from s to
+					// v is greater than the new cost we just found (cost of s to u plus
+					// cost of u to v across e), update v's cost in the cost list and
+					// update v's predecessor in the predecessor list (it's now u).
+					costV = costs[v];
+					first_visit = ( costs[v] === undefined );
+					if ( first_visit || costV > costUTotal ) {
+						costs[v] = costUTotal;
+						open.push( v, costUTotal );
+						predecessors[v] = u;
+					}
+				}
+			}
+
+			if ( destination !== undefined && costs[destination] === undefined ) {
+				msg = ['Could not find a path from ', source, ' to ', destination, '.'].join( '' );
+				throw new Error( msg );
+			}
+
+			while ( destination ) {
+				nodes.push( destination );
+				destination = predecessors[destination];
+			}
+
+			nodes.reverse();
+
+			return nodes;
+		},
+
+		findPath: function ( source, destination, isTransper ) {
+			var path = this._calculateShortestPath( ( isTransper ? this._bestTransperGraph : this._bestWayGraph ), source, destination );
+			return path;
 		},
 
 		refresh: function ( redraw ) {

@@ -46,6 +46,9 @@
 				widget.routes( "option", "language", e.target.value );
 				widget.routes( "refresh", true );
 			});
+
+			console.log( widget.routes( "findPath", 'a', 'i' ) );
+			console.log( widget.routes( "findPath", 'a', 'i', true ) );
 		});
 	</script>
 </head>
