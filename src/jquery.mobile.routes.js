@@ -71,31 +71,7 @@
 		_lines: [],
 		_stations: [],
 		_stationsMap: [],
-
-		// test
-		_bestWayGraph: {
-			a: {b: 10, d: 1},
-			b: {a: 1, c: 1, e: 1},
-			c: {b: 1, f: 1},
-			d: {a: 1, e: 1, g: 1},
-			e: {b: 1, d: 1, f: 1, h: 1},
-			f: {c: 1, e: 1, i: 1},
-			g: {d: 1, h: 1},
-			h: {e: 1, g: 1, i: 1},
-			i: {f: 1, h: 1}
-		},
-
-		_bestTransperGraph: {
-			a: {b: 10, d: 1},
-			b: {a: 1, c: 1, e: 1},
-			c: {b: 1, f: 1},
-			d: {a: 1, e: 1, g: 1},
-			e: {b: 1, d: 1, f: 1, h: 1},
-			f: {c: 1, e: 1, i: 100 },
-			g: {d: 1, h: 1},
-			h: {e: 1, g: 1, i: 1},
-			i: {f: 1, h: 1}
-		},
+		_graph: {},
 
 		_create: function () {
 			var self = this,
@@ -208,6 +184,7 @@
 				control1,
 				control2,
 				controlPoint = [],
+				graph= {},
 				convertCoord = function ( pos ) {
 					return ( margin + interval * pos );
 				};
@@ -224,6 +201,18 @@
 					for ( k = 0; k < branch.length; k += 1 ) {
 						station = branch[k];
 						coord = station.coordinates;
+
+						if ( graph[station.label.text] === undefined ) {
+							graph[station.label.text] = {};
+						}
+
+						if ( branch[k - 1] !== undefined ) {
+							graph[station.label.text][branch[k - 1].label.text] = 1;
+						}
+
+						if ( branch[k + 1] !== undefined ) {
+							graph[station.label.text][branch[k + 1].label.text] = 1;
+						}
 
 						// info
 						minX = ( minX > coord[0] ) ? coord[0] : minX;
@@ -288,6 +277,9 @@
 			}
 			this._leftTop = [ minX, minY ];
 			this._rightBottom = [ maxX, maxY ];
+
+
+			this._graph = graph;
 
 			this.element.find( ".ui-routes-container" )
 				.width( ( maxX + minX ) * this.options.interval + this.options.margin * 2 )
@@ -534,7 +526,8 @@
 		},
 
 		findPath: function ( source, destination, isTransper ) {
-			var path = this._calculateShortestPath( ( isTransper ? this._bestTransperGraph : this._bestWayGraph ), source, destination );
+			var path = this._calculateShortestPath( this._graph, source, destination, isTransper );
+
 			return path;
 		},
 
