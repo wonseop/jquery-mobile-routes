@@ -72,6 +72,7 @@
 		_stations: [],
 		_stationsMap: [],
 		_graph: {},
+		_transperList: [],
 
 		_create: function () {
 			var self = this,
@@ -237,6 +238,7 @@
 							station.radius = exchangeRadius;
 							station.font = exchangeFont;
 							station.exchange = true;
+							this._transperList.push( station.label.text );
 						}
 
 						// lines
@@ -366,7 +368,6 @@
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-
 				if ( this._languageData ) {
 					stationName = this._languageData[station.label.text] || station.label.text;
 				} else {
@@ -445,7 +446,7 @@
 		// Dijkstra path-finding functions
 		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
 		// Thanks Wyatt Baldwin
-		_calculateShortestPath: function ( graph, source, destination ) {
+		_calculateShortestPath: function ( graph, source, destination, isMinimumTransper ) {
 			var predecessors, costs, open,
 				closest,
 				u, v,
@@ -491,6 +492,10 @@
 					// Get the cost of the edge running from u to v.
 					costE = adjacentNodes[v];
 
+					if ( this._transperList.indexOf( u ) !== -1 ) {
+						costE += isMinimumTransper ? 99 : 1;
+					}
+
 					// Cost of s to u plus the cost of u to v across e--this is *a*
 					// cost from s to v that may or may not be less than the current
 					// known cost to v.
@@ -525,8 +530,8 @@
 			return nodes;
 		},
 
-		findPath: function ( source, destination, isTransper ) {
-			var path = this._calculateShortestPath( this._graph, source, destination, isTransper );
+		findPath: function ( source, destination, isMinimumTransper ) {
+			var path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
 
 			return path;
 		},
