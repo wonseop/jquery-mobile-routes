@@ -72,7 +72,6 @@
 		_stations: [],
 		_stationsMap: [],
 		_graph: {},
-		_transperList: [],
 
 		_create: function () {
 			var self = this,
@@ -165,6 +164,7 @@
 				branches,
 				branch,
 				station,
+				duplicatedStation,
 				stationStyle,
 				stationRadius = data.stationRadius,
 				stationFont = data.stationFont,
@@ -203,16 +203,16 @@
 						station = branch[k];
 						coord = station.coordinates;
 
-						if ( graph[station.label.text] === undefined ) {
-							graph[station.label.text] = {};
+						if ( graph[station.code] === undefined ) {
+							graph[station.code] = {};
 						}
 
 						if ( branch[k - 1] !== undefined ) {
-							graph[station.label.text][branch[k - 1].label.text] = 1;
+							graph[station.code][branch[k - 1].code] = 1;
 						}
 
 						if ( branch[k + 1] !== undefined ) {
-							graph[station.label.text][branch[k + 1].label.text] = 1;
+							graph[station.code][branch[k + 1].code] = 1;
 						}
 
 						// info
@@ -233,12 +233,14 @@
 							this._stationsMap[coord[0]][coord[1]] = station;
 							this._stations.push( station );
 						} else if ( !this._stationsMap[coord[0]][coord[1]].exchange ) {
-							station = this._stationsMap[coord[0]][coord[1]];
-							station.style = exchangeStyle;
-							station.radius = exchangeRadius;
-							station.font = exchangeFont;
-							station.exchange = true;
-							this._transperList.push( station.label.text );
+							duplicatedStation = this._stationsMap[coord[0]][coord[1]];
+							duplicatedStation.style = exchangeStyle;
+							duplicatedStation.radius = exchangeRadius;
+							duplicatedStation.font = exchangeFont;
+							duplicatedStation.exchange = true;
+
+							graph[station.code][duplicatedStation.code] = "TRANSPER";
+							graph[duplicatedStation.code][station.code] = "TRANSPER";
 						}
 
 						// lines
@@ -492,8 +494,8 @@
 					// Get the cost of the edge running from u to v.
 					costE = adjacentNodes[v];
 
-					if ( this._transperList.indexOf( u ) !== -1 ) {
-						costE += isMinimumTransper ? 99 : 1;
+					if ( costE === "TRANSPER" ) {
+						costE = isMinimumTransper ? 9 : 1;
 					}
 
 					// Cost of s to u plus the cost of u to v across e--this is *a*
@@ -530,8 +532,11 @@
 			return nodes;
 		},
 
-		findPath: function ( source, destination, isMinimumTransper ) {
-			var path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+		findPath: function ( start, end, isMinimumTransper ) {
+			var source, destination, path;
+
+			source = start
+			path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
 
 			return path;
 		},
