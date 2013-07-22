@@ -47,8 +47,12 @@
 				widget.routes( "refresh", true );
 			});
 
-			console.log( widget.routes( "findPath", '신갈', '구로디지털단지' ) );
-			console.log( widget.routes( "findPath", '신갈', '구로디지털단지', true ) );
+			widget.routes( "findPath", '신갈', '구로디지털단지' );
+			widget.routes( "findPath", '신갈', '구로디지털단지', true );
+
+			widget.routes( "findPath", '무악재', '신갈' );
+			widget.routes( "findPath", '무악재', '신갈', true );
+
 		});
 	</script>
 </head>

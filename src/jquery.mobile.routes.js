@@ -71,6 +71,7 @@
 		_lines: [],
 		_stations: [],
 		_stationsMap: [],
+		_stationList: {},
 		_graph: {},
 
 		_create: function () {
@@ -182,8 +183,7 @@
 				xPos = 0,
 				yPos = 0,
 				linePath,
-				control1,
-				control2,
+				shorthand,
 				controlPoint = [],
 				graph= {},
 				convertCoord = function ( pos ) {
@@ -208,11 +208,11 @@
 						}
 
 						if ( branch[k - 1] !== undefined ) {
-							graph[station.code][branch[k - 1].code] = 1;
+							graph[station.code][branch[k - 1].code] = 3;
 						}
 
 						if ( branch[k + 1] !== undefined ) {
-							graph[station.code][branch[k + 1].code] = 1;
+							graph[station.code][branch[k + 1].code] = 3;
 						}
 
 						// info
@@ -225,6 +225,8 @@
 						if ( !this._stationsMap[coord[0]] ) {
 							this._stationsMap[coord[0]] = [];
 						}
+
+						this._stationList[ station.code ] = station.label.text;
 
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
@@ -256,15 +258,11 @@
 								//  -1/6      1      1/6      0
 								//    0      1/6      1     -1/6
 								//    0       0       1       0
-								control1 = branch[ ( k < 2 ) ? ( ( k < 1 ) ? k : ( k - 1 ) ) : ( k - 2 ) ].coordinates;
-								control2 = branch[ ( k > branch.length - 2 ) ? k  : ( k + 1 )].coordinates;
-								controlPoint[0] = ( -convertCoord( control1[0] ) + 6 * xPosPrev + xPos ) / 6;
-								controlPoint[1] = ( -convertCoord( control1[1] ) + 6 * yPosPrev + yPos ) / 6;
-								controlPoint[2] = ( xPosPrev + 6 * xPos - convertCoord( control2[0] ) ) / 6;
-								controlPoint[3] = ( yPosPrev + 6 * yPos - convertCoord( control2[1] ) ) / 6;
+								shorthand = branch[ ( k > branch.length - 2 ) ? k  : ( k + 1 )].coordinates;
+								controlPoint[0] = ( xPosPrev + 6 * xPos - convertCoord( shorthand[0] ) ) / 6;
+								controlPoint[1] = ( yPosPrev + 6 * yPos - convertCoord( shorthand[1] ) ) / 6;
 
-								linePath += "C" + controlPoint[0] + "," + controlPoint[1] +
-									" " + controlPoint[2] + "," + controlPoint[3] +
+								linePath += "S" + " " + controlPoint[0] + "," + controlPoint[1] +
 									" " + xPos + "," + yPos;
 							}
 						} else {
@@ -495,7 +493,7 @@
 					costE = adjacentNodes[v];
 
 					if ( costE === "TRANSPER" ) {
-						costE = isMinimumTransper ? 9 : 1;
+						costE = isMinimumTransper ? 999 : 5;
 					}
 
 					// Cost of s to u plus the cost of u to v across e--this is *a*
@@ -533,10 +531,27 @@
 		},
 
 		findPath: function ( start, end, isMinimumTransper ) {
-			var source, destination, path;
+			var stationList = this._stationList,
+				source, destination, path,
+				i,
+				getCodeByName = function( name ) {
+					var key;
 
-			source = start
+					for ( key in stationList ) {
+						if( stationList[key] === name) {
+							return key;
+						}
+					}
+				};
+
+			source = getCodeByName( start );
+			destination = getCodeByName( end );
 			path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+
+			console.log( "-----------------------------------------------" );
+			for ( i = 0; i < path.length; i++ ) {
+				console.log( stationList[path[i]]+ ", " );
+			}
 
 			return path;
 		},
