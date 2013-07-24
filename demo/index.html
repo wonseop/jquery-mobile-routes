@@ -8,6 +8,8 @@
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.js"></script>
 	<script src="../lib/iscroll.js"></script>
+
+	<link rel="stylesheet" href="../css/jquery.mobile.routes.css" />
 	<script src="../src/jquery.mobile.routes.js"></script>
 	<script>
 		var resizeContent = function ( page ) {
@@ -42,17 +44,17 @@
 				scroller.refresh();
 			});
 
-			$("#languagueSelection input[type='radio']").on( "change", function ( e ) {
+			$( "#languagueSelection input[type='radio']" ).on( "change", function () {
 				widget.routes( "option", "language", e.target.value );
 				widget.routes( "refresh", true );
 			});
 
-			widget.routes( "findPath", '신갈', '구로디지털단지' );
-			widget.routes( "findPath", '신갈', '구로디지털단지', true );
+			$( "#shortestWay" ).on( "click", function () {
+				var startCode = widget.routes( "getCodeByName", '신갈' ),
+					endCode = widget.routes( "getCodeByName", '구로' );
 
-			widget.routes( "findPath", '무악재', '신갈' );
-			widget.routes( "findPath", '무악재', '신갈', true );
-
+				widget.routes( "findPath", startCode, endCode );
+			});
 		});
 	</script>
 </head>
@@ -78,6 +80,10 @@
 					<label for="radio-lang-ko">Default(Korean)</label>
 					<input type="radio" data-theme="a" name="radio-lang" id="radio-lang-en" value="en">
 					<label for="radio-lang-en">English</label>
+				</fieldset>
+				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+					<legend>Shortest way:</legend>
+					<button id="shortestWay">Singal > Guro</button>
 				</fieldset>
 			</div>
 

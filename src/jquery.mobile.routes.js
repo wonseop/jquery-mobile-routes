@@ -4,51 +4,7 @@
  */
 
 ( function ( $, window ) {
-	var document = window.document,
-		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
-		// Thanks Wyatt Baldwin
-		PriorityQueue = {
-			make: function ( opts ) {
-				var T = this,
-					t = {},
-					key;
-
-				opts = opts || {};
-
-				for ( key in T ) {
-					t[key] = T[key];
-				}
-
-				t.queue = [];
-				t.sorter = function ( a, b ) {
-					return a.cost - b.cost;
-				};
-
-				return t;
-			},
-
-			/**
-			* Add a new item to the queue and ensure the highest priority element
-			* is at the front of the queue.
-			*/
-			push: function ( value, cost ) {
-				var item = { value: value, cost: cost };
-
-				this.queue.push( item );
-				this.queue.sort( this.sorter );
-			},
-
-			/**
-			* Return the highest priority element in the queue.
-			*/
-			pop: function () {
-				return this.queue.shift();
-			},
-
-			empty: function () {
-				return this.queue.length === 0;
-			}
-		};
+	var document = window.document;
 
 	$.widget( "mobile.routes", $.mobile.widget, {
 		options: {
@@ -358,6 +314,7 @@
 
 				// draw station
 				this._node( null, "circle", {
+					class: "station-" + station.label.text,
 					cx: position[0],
 					cy: position[1],
 					r: stationRadius
@@ -457,54 +414,53 @@
 				costV,
 				first_visit,
 				msg,
-				nodes = [];
+				nodes = [],
+				PriorityQueue = function () {
+					var queue = [],
+						sorter = function ( a, b ) {
+							return a.cost - b.cost;
+						};
 
-			// Predecessor map for each node that has been encountered.
-			// node ID => predecessor node ID
+					this.push = function ( value, cost ) {
+						var item = { value: value, cost: cost };
+
+						queue.push( item );
+						queue.sort( sorter );
+					};
+
+					this.pop = function () {
+						return queue.shift();
+					};
+
+					this.empty = function () {
+						return queue.length === 0;
+					};
+				};
+
 			predecessors = {};
 
-			// Costs of shortest paths from s to all nodes encountered.
-			// node ID => cost
 			costs = {};
 			costs[source] = 0;
 
-			// Costs of shortest paths from s to all nodes encountered; differs from
-			// `costs` in that it provides easy access to the node that currently has
-			// the known shortest path from s.
-			// XXX: Do we actually need both `costs` and `open`?
-			open = PriorityQueue.make();
+			open = new PriorityQueue();
 			open.push( source, 0 );
 
 			while ( !open.empty() ) {
-				// In the nodes remaining in graph that have a known cost from s,
-				// find the node, u, that currently has the shortest path from s.
 				closest = open.pop();
 				u = closest.value;
 				costU = closest.cost;
 
-				// Get nodes adjacent to u...
 				adjacentNodes = graph[u] || {};
 
-				// ...and explore the edges that connect u to those nodes, updating
-				// the cost of the shortest paths to any or all of those nodes as
-				// necessary. v is the node across the current edge from u.
 				for ( v in adjacentNodes ) {
-					// Get the cost of the edge running from u to v.
 					costE = adjacentNodes[v];
 
 					if ( costE === "TRANSPER" ) {
 						costE = isMinimumTransper ? 999 : 5;
 					}
 
-					// Cost of s to u plus the cost of u to v across e--this is *a*
-					// cost from s to v that may or may not be less than the current
-					// known cost to v.
 					costUTotal = costU + costE;
 
-					// If we haven't visited v yet OR if the current known cost from s to
-					// v is greater than the new cost we just found (cost of s to u plus
-					// cost of u to v across e), update v's cost in the cost list and
-					// update v's predecessor in the predecessor list (it's now u).
 					costV = costs[v];
 					first_visit = ( costs[v] === undefined );
 					if ( first_visit || costV > costUTotal ) {
@@ -530,27 +486,38 @@
 			return nodes;
 		},
 
-		findPath: function ( start, end, isMinimumTransper ) {
-			var stationList = this._stationList,
-				source, destination, path,
-				i,
-				getCodeByName = function( name ) {
-					var key;
+		getCodeByName: function ( name ) {
+			var stationList = this._stationList, key;
 
-					for ( key in stationList ) {
-						if( stationList[key] === name) {
-							return key;
-						}
-					}
-				};
+			for ( key in stationList ) {
+				if( stationList[key] === name) {
+					return key;
+				}
+			}
+		},
 
-			source = getCodeByName( start );
-			destination = getCodeByName( end );
-			path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+		getNameByCode: function ( code ) {
+			return this._stationList[code];
+		},
 
-			console.log( "-----------------------------------------------" );
+		findPath: function ( source, destination, isMinimumTransper, noDisplay ) {
+			var i, j,
+				svgDoc = this._svg,
+				stations = this._stations,
+				stationList = this._stationList,
+				path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+
+			if ( noDisplay || !svgDoc ) {
+				return path;
+			}
+
 			for ( i = 0; i < path.length; i++ ) {
-				console.log( stationList[path[i]]+ ", " );
+				for ( j = 0; j < stations.length; j += 1 ) {
+					if ( stations[j].label.text === stationList[path[i]] ) {
+						$( ".station-" + stationList[path[i]] )[0].classList.add( "selected" );
+						break;
+					}
+				}
 			}
 
 			return path;
