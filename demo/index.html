@@ -44,16 +44,17 @@
 				scroller.refresh();
 			});
 
-			$( "#languagueSelection input[type='radio']" ).on( "change", function () {
+			$( "#languagueSelection input[type='radio']" ).on( "change", function ( e ) {
 				widget.routes( "option", "language", e.target.value );
 				widget.routes( "refresh", true );
 			});
 
-			$( "#shortestWay" ).on( "click", function () {
+			$( "#shortestWay" ).on( "vclick", function () {
 				var startCode = widget.routes( "getCodeByName", '신갈' ),
-					endCode = widget.routes( "getCodeByName", '구로' );
+					endCode = widget.routes( "getCodeByName", '구로' ),
+					path;
 
-				widget.routes( "findPath", startCode, endCode );
+				path = widget.routes( "findPath", startCode, endCode );
 			});
 		});
 	</script>

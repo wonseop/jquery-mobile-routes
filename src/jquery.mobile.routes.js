@@ -366,6 +366,9 @@
 			}
 		},
 
+		// -------------------------------------------------
+		// SVG
+
 		_node: function ( parent, name, settings, style ) {
 			var node, key, value,
 				attributes = $.extend( settings, style || {} );
@@ -399,6 +402,21 @@
 
 			return node;
 		},
+
+		_addClassSVG: function ( element, className ) {
+			var classAttr = element.attr('class');
+			classAttr = classAttr + ( classAttr.length === 0 ? '' : ' ' ) + className;
+			element.attr( 'class', classAttr );
+		},
+
+		_removeClassSVG: function ( element, className ) {
+			var classAttr = element.attr('class');
+			classAttr = classAttr.replace( new RegExp( '\\s?' + className ), '' );
+			element.attr( 'class', classAttr );
+		},
+
+		// -------------------------------------------------
+		// Path finding
 
 		// Dijkstra path-finding functions
 		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
@@ -490,7 +508,7 @@
 			var stationList = this._stationList, key;
 
 			for ( key in stationList ) {
-				if( stationList[key] === name) {
+				if( stationList[key] === name ) {
 					return key;
 				}
 			}
@@ -514,7 +532,7 @@
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
 					if ( stations[j].label.text === stationList[path[i]] ) {
-						$( ".station-" + stationList[path[i]] )[0].classList.add( "selected" );
+						this._addClassSVG( $( ".station-" + stationList[path[i]] ), "selected" );
 						break;
 					}
 				}
