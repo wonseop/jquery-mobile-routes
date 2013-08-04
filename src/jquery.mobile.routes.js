@@ -405,14 +405,20 @@
 
 		_addClassSVG: function ( element, className ) {
 			var classAttr = element.attr('class');
+			if ( classAttr.indexOf( className ) !== -1 ) {
+				return;
+			}
 			classAttr = classAttr + ( classAttr.length === 0 ? '' : ' ' ) + className;
 			element.attr( 'class', classAttr );
 		},
 
-		_removeClassSVG: function ( element, className ) {
-			var classAttr = element.attr('class');
-			classAttr = classAttr.replace( new RegExp( '\\s?' + className ), '' );
-			element.attr( 'class', classAttr );
+		_removeClassSVG: function ( elements, className ) {
+			$.each( elements, function () {
+				var element = $( this ),
+					classAttr = element.attr('class');
+				classAttr = classAttr.replace( new RegExp( '\\s?' + className ), '' );
+				element.attr( 'class', classAttr );
+			} );
 		},
 
 		// -------------------------------------------------
@@ -518,15 +524,18 @@
 			return this._stationList[code];
 		},
 
-		findPath: function ( source, destination, isMinimumTransper, noDisplay ) {
+		findPath: function ( source, destination, isMinimumTransper ) {
+			return this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+		},
+
+		displayPath: function ( path ) {
 			var i, j,
 				svgDoc = this._svg,
 				stations = this._stations,
-				stationList = this._stationList,
-				path = this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+				stationList = this._stationList;
 
-			if ( noDisplay || !svgDoc ) {
-				return path;
+			if ( !svgDoc || !path ) {
+				return;
 			}
 
 			for ( i = 0; i < path.length; i++ ) {
@@ -537,8 +546,31 @@
 					}
 				}
 			}
+		},
 
-			return path;
+		clearPath: function ( path ) {
+			var i, j,
+				svgDoc = this._svg,
+				stations = this._stations,
+				stationList = this._stationList;
+
+			if ( !svgDoc ) {
+				return;
+			}
+
+			if ( !path ) {
+				this._removeClassSVG( $( "circle" ), "selected" );
+				return;
+			}
+
+			for ( i = 0; i < path.length; i++ ) {
+				for ( j = 0; j < stations.length; j += 1 ) {
+					if ( stations[j].label.text === stationList[path[i]] ) {
+						this._removeClassSVG( $( ".station-" + stationList[path[i]] ), "selected" );
+						break;
+					}
+				}
+			}
 		},
 
 		refresh: function ( redraw ) {

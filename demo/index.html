@@ -55,6 +55,12 @@
 					path;
 
 				path = widget.routes( "findPath", startCode, endCode );
+
+				widget.routes( "displayPath", path );
+			});
+
+			$( "#clearWay" ).on( "vclick", function () {
+				widget.routes( "clearPath" );
 			});
 		});
 	</script>
@@ -85,6 +91,7 @@
 				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 					<legend>Shortest way:</legend>
 					<button id="shortestWay">Singal > Guro</button>
+					<button id="clearWay">Clear</button>
 				</fieldset>
 			</div>
 
