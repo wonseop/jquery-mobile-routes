@@ -6,7 +6,7 @@ A jquery mobile plugin to render data as a route map
 ## Release History
 0.1.0: Add source code & demo
 
-## Documentation
+## Demo
 http://jqmroutes.vv.si/routes/
 
 ## License
