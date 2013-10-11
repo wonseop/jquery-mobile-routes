@@ -4,7 +4,8 @@
  */
 
 ( function ( $, window ) {
-	var document = window.document;
+	var document = window.document,
+		svgNameSpace = 'http://www.w3.org/2000/svg';
 
 	$.widget( "mobile.routes", $.mobile.widget, {
 		options: {
@@ -16,13 +17,8 @@
 			initSelector: ":jqmData(role='routes')"
 		},
 
-		_svgNS: 'http://www.w3.org/2000/svg',
 		_svg: null,
-
-		_gridRange: [],
-		_data: {},
-		_leftTop: [],
-		_rightBottom: [],
+		_drawingRange: [],	// [ minX, minY, maxX, maxY ]
 		_languageData: null,
 		_lines: [],
 		_stations: [],
@@ -37,7 +33,7 @@
 
 			svgContainer.addClass( "ui-routes-svg ui-routes-container" );
 
-			self._svg = $( document.createElementNS( this._svgNS, "svg" ) )
+			self._svg = $( document.createElementNS( svgNameSpace, "svg" ) )
 				.attr( {
 					'version': '1.1',
 					'width': "100%",
@@ -47,9 +43,8 @@
 			view.addClass( "ui-routes" );
 
 			$.each( this.options, function ( key, value ) {
-				self.options[ key ] = undefined;
 				self._setOption( key, value );
-			});
+			} );
 
 			if ( document.readyState === "complete" ) {
 				self.refresh( true );
@@ -61,20 +56,20 @@
 				option = self.options,
 				data;
 
-			$.mobile.widget.prototype._setOption.apply( this, arguments );
+			$.Widget.prototype._setOption.apply( this, arguments );
 			switch ( key ) {
 			case "db":
-				if ( value.match(/\.(json)$/i) ) {
-					$.ajax({
+				if ( value.match( /\.(json)$/i ) ) {
+					$.ajax( {
 						async: false,
 						global: false,
 						dataType: 'JSON',
 						url : option.db
-					}).done( function ( result ) {
+					} ).done( function ( result ) {
 						data = result;
-					}).fail( function ( e ) {
+					} ).fail( function ( e ) {
 						throw new Error( e );
-					});
+					} );
 				} else {
 					data = window[value];
 				}
@@ -82,26 +77,26 @@
 				break;
 
 			case "language":
-				data = option.db;
-				if ( !data || !data.match(/\.(json)$/i) ) {
-					return;
-				}
-
 				if ( !value ) {
 					this._languageData = null;
 					return;
 				}
 
+				data = option.db;
+				if ( !data || !data.match(/\.(json)$/i) ) {
+					return;
+				}
+
 				data = data.substring( data.lastIndexOf("\\") + 1, data.lastIndexOf(".") ) +
 						"." + value + "." + data.substring( data.lastIndexOf(".") + 1, data.length );
-				$.ajax({
+				$.ajax( {
 					async: false,
 					global: false,
 					dataType: 'JSON',
 					url : data
-				}).done( function ( result ) {
+				} ).done( function ( result ) {
 					self._languageData = result;
-				});
+				} );
 				break;
 			}
 		},
@@ -145,8 +140,6 @@
 				convertCoord = function ( pos ) {
 					return ( margin + interval * pos );
 				};
-
-			this._data = data;
 
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].stations;
@@ -209,17 +202,11 @@
 							if ( xPosPrev === xPos || yPosPrev === yPos ) {
 								linePath += "L" + xPos + "," + yPos;
 							} else {
-								// Catmull-Rom to Cubic Bezier conversion matrix 
-								//    0       1       0       0
-								//  -1/6      1      1/6      0
-								//    0      1/6      1     -1/6
-								//    0       0       1       0
 								shorthand = branch[ ( k > branch.length - 2 ) ? k  : ( k + 1 )].coordinates;
 								controlPoint[0] = ( xPosPrev + 6 * xPos - convertCoord( shorthand[0] ) ) / 6;
 								controlPoint[1] = ( yPosPrev + 6 * yPos - convertCoord( shorthand[1] ) ) / 6;
 
-								linePath += "S" + " " + controlPoint[0] + "," + controlPoint[1] +
-									" " + xPos + "," + yPos;
+								linePath += "S" + " " + controlPoint[0] + "," + controlPoint[1] + " " + xPos + "," + yPos;
 							}
 						} else {
 							linePath += "M" + xPos + "," + yPos;
@@ -233,29 +220,25 @@
 					xPosPrev = yPosPrev = -1;
 				}
 			}
-			this._leftTop = [ minX, minY ];
-			this._rightBottom = [ maxX, maxY ];
-
-
+			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
 			this.element.find( ".ui-routes-container" )
-				.width( ( maxX + minX ) * this.options.interval + this.options.margin * 2 )
-				.height( ( maxY + minY ) * this.options.interval + this.options.margin * 2 );
+				.width( ( maxX + minX ) * interval + margin * 2 )
+				.height( ( maxY + minY ) * interval + margin * 2 );
 		},
 
 		_drawGrid: function () {
-			if ( !this.options.gridLine || !this._data ) {
+			if ( !this.options.gridLine ) {
 				return;
 			}
 
-			var self = this,
-				options = self.options,
+			var options = this.options,
 				style = { stroke: 'blue', strokeWidth: 1 },
 				interval = options.interval,
 				margin = options.margin,
-				cw = margin * 2 + interval * ( this._rightBottom[0] + 1 ),
-				ch = margin * 2 + interval * ( this._rightBottom[1] + 1 ),
+				cw = margin * 2 + interval * ( this._drawingRange[2] + 1 ),
+				ch = margin * 2 + interval * ( this._drawingRange[3] + 1 ),
 				i;
 
 			for ( i = 0; i <= cw; i += interval ) {
@@ -266,6 +249,7 @@
 					y2: 0.5 + i + margin
 				}, style );
 			}
+
 			for ( i = 0; i <= ch; i += interval ) {
 				this._node( null, "line", {
 					x1: margin,
@@ -277,8 +261,7 @@
 		},
 
 		_drawLines: function () {
-			var i,
-				lines = this._lines,
+			var i, lines = this._lines,
 				length = lines.length;
 
 			for ( i = 0; i < length; i += 1 ) {
@@ -325,11 +308,9 @@
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-				if ( this._languageData ) {
-					stationName = this._languageData[station.label.text] || station.label.text;
-				} else {
-					stationName = station.label.text;
-				}
+				stationName = this._languageData ?
+					( this._languageData[station.label.text] || station.label.text ) :
+						station.label.text;
 
 				text = this._text( group, stationName || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
@@ -374,7 +355,7 @@
 				attributes = $.extend( settings, style || {} );
 
 			parent = parent || this._svg;
-			node = parent.ownerDocument.createElementNS( this._svgNS, name );
+			node = parent.ownerDocument.createElementNS( svgNameSpace, name );
 
 			for ( key in attributes ) {
 				value = attributes[key];
@@ -382,6 +363,7 @@
 					node.setAttribute( key.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase(), value);
 				}
 			}
+
 			parent.appendChild( node );
 			return node;
 		},
@@ -395,6 +377,7 @@
 			}
 
 			texts = value.split( "\n" );
+
 			for ( i = 0; i < texts.length; i += 1 ) {
 				this._node( node, "tspan", { x: "0",  y: ( settings.fontSize * i ) }, {} )
 					.appendChild( node.ownerDocument.createTextNode( texts[i] ) );
@@ -405,9 +388,11 @@
 
 		_addClassSVG: function ( element, className ) {
 			var classAttr = element.attr('class');
+
 			if ( classAttr.indexOf( className ) !== -1 ) {
 				return;
 			}
+
 			classAttr = classAttr + ( classAttr.length === 0 ? '' : ' ' ) + className;
 			element.attr( 'class', classAttr );
 		},
@@ -416,14 +401,13 @@
 			$.each( elements, function () {
 				var element = $( this ),
 					classAttr = element.attr('class');
+
 				classAttr = classAttr.replace( new RegExp( '\\s?' + className ), '' );
 				element.attr( 'class', classAttr );
 			} );
 		},
 
 		// -------------------------------------------------
-		// Path finding
-
 		// Dijkstra path-finding functions
 		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
 		// Thanks Wyatt Baldwin
@@ -438,28 +422,29 @@
 				costV,
 				first_visit,
 				msg,
-				nodes = [],
-				PriorityQueue = function () {
-					var queue = [],
-						sorter = function ( a, b ) {
-							return a.cost - b.cost;
-						};
+				nodes = [];
 
-					this.push = function ( value, cost ) {
-						var item = { value: value, cost: cost };
-
-						queue.push( item );
-						queue.sort( sorter );
+			function PriorityQueue() {
+				var queue = [],
+					sorter = function ( a, b ) {
+						return a.cost - b.cost;
 					};
 
-					this.pop = function () {
-						return queue.shift();
-					};
+				this.push = function ( value, cost ) {
+					var item = { value: value, cost: cost };
 
-					this.empty = function () {
-						return queue.length === 0;
-					};
+					queue.push( item );
+					queue.sort( sorter );
 				};
+
+				this.pop = function () {
+					return queue.shift();
+				};
+
+				this.empty = function () {
+					return queue.length === 0;
+				};
+			}
 
 			predecessors = {};
 
@@ -529,14 +514,15 @@
 		},
 
 		displayPath: function ( path ) {
-			var i, j,
-				svgDoc = this._svg,
-				stations = this._stations,
-				stationList = this._stationList;
+			var i, j, svgDoc, stations, stationList;
 
 			if ( !svgDoc || !path ) {
 				return;
 			}
+
+			svgDoc = this._svg;
+			stations = this._stations;
+			stationList = this._stationList;
 
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
@@ -590,17 +576,17 @@
 				this._drawElements();
 			}
 		}
-	});
+	} );
 
 	//auto self-init widgets
 	$( document ).on( "pagecreate create", function ( e ) {
 		$.mobile.routes.prototype.enhanceWithin( e.target );
-	});
+	} );
 
 	$( window ).on( "pagechange", function () {
 		$( ".ui-page-active .ui-routes" ).routes( "refresh", true  );
-	}).on( "resize", function () {
+	} ).on( "resize", function () {
 		$( ".ui-page-active .ui-routes" ).routes( "refresh" );
-	});
+	} );
 
 } ( jQuery, this ) );
