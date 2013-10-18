@@ -11,9 +11,7 @@
 		options: {
 			language: null,
 			db: null,
-			gridLine: false,
-			margin: 10,
-			interval: 1,
+			unit: 1,
 			initSelector: ":jqmData(role='routemap')"
 		},
 
@@ -31,13 +29,14 @@
 				view = self.element,
 				svgContainer = $( "<div>" ).appendTo( view );
 
-			svgContainer.addClass( "ui-routemap-svg ui-routemap-container" );
+			svgContainer.addClass( "ui-routemap-container" );
 
 			self._svg = $( document.createElementNS( svgNameSpace, "svg" ) )
 				.attr( {
-					'version': '1.1',
-					'width': "100%",
-					'height': "100%"
+					"version": "1.1",
+					"width": "100%",
+					"height": "100%",
+					"class": "ui-routemap-svg"
 				} ).appendTo( svgContainer )[0];
 
 			view.addClass( "ui-routemap" );
@@ -111,8 +110,7 @@
 			var i, j, k,
 				lines = data.lines,
 				options = this.options,
-				interval = options.interval,
-				margin = options.margin,
+				unit = options.unit,
 				branches,
 				branch,
 				station,
@@ -137,8 +135,13 @@
 				shorthand,
 				controlPoint = [],
 				graph= {},
+				svgContainer = this.element.find( ".ui-routemap-container" ),
+				marginTop = parseInt( svgContainer.css( "marginTop" ), 10 ) || 0,
+				marginBottom = parseInt( svgContainer.css( "marginBottom" ), 10 ) || 0,
+				marginLeft = parseInt( svgContainer.css( "marginLeft" ), 10 ) || 0,
+				marginRight = parseInt( svgContainer.css( "marginRight" ), 10 ) || 0,
 				convertCoord = function ( pos ) {
-					return ( margin + interval * pos );
+					return ( unit * pos );
 				};
 
 			for ( i = 0; i < lines.length; i += 1 ) {
@@ -228,41 +231,8 @@
 			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
-			this.element.find( ".ui-routemap-container" )
-				.width( ( maxX + minX ) * interval + margin * 2 )
-				.height( ( maxY + minY ) * interval + margin * 2 );
-		},
-
-		_drawGrid: function () {
-			if ( !this.options.gridLine ) {
-				return;
-			}
-
-			var options = this.options,
-				style = { stroke: 'blue', strokeWidth: 1 },
-				interval = options.interval,
-				margin = options.margin,
-				cw = margin * 2 + interval * ( this._drawingRange[2] + 1 ),
-				ch = margin * 2 + interval * ( this._drawingRange[3] + 1 ),
-				i;
-
-			for ( i = 0; i <= cw; i += interval ) {
-				this._node( null, "line", {
-					x1: 0.5 + i + margin,
-					y1: 0.5 + i + margin,
-					x2: margin,
-					y2: 0.5 + i + margin
-				}, style );
-			}
-
-			for ( i = 0; i <= ch; i += interval ) {
-				this._node( null, "line", {
-					x1: margin,
-					y1: 0.5 + i + margin,
-					x2: cw - margin,
-					y2: 0.5 + i + margin
-				}, style );
-			}
+			svgContainer.width( ( maxX + minX ) * unit + marginLeft + marginRight )
+				.height( ( maxY + minY ) * unit + marginTop + marginBottom );
 		},
 
 		_drawLines: function () {
@@ -279,8 +249,7 @@
 		_drawElements: function () {
 			var i,
 				options = this.options,
-				interval = options.interval,
-				margin = options.margin,
+				unit = options.unit,
 				stationRadius,
 				stations = this._stations,
 				station,
@@ -297,7 +266,7 @@
 				station = stations[i];
 				label = station.label;
 				coordinates = station.coordinates;
-				position = [ margin + interval * coordinates[0], margin + interval * coordinates[1] ];
+				position = [unit * coordinates[0], unit * coordinates[1] ];
 				stationRadius = station.radius;
 
 				// draw station
@@ -416,7 +385,7 @@
 		// Dijkstra path-finding functions
 		// Original code: https://bitbucket.org/wyatt/dijkstra.js(MIT license)
 		// Thanks Wyatt Baldwin
-		_calculateShortestPath: function ( graph, source, destination, isMinimumTransper ) {
+		_calculateShortestPath: function ( graph, source, destination, isMinimumTransfersMode ) {
 			var predecessors, costs, open,
 				closest,
 				u, v,
@@ -470,7 +439,7 @@
 					costE = adjacentNodes[v];
 
 					if ( costE === "TRANSPER" ) {
-						costE = isMinimumTransper ? 999 : 5;
+						costE = isMinimumTransfersMode ? 999 : 5;
 					}
 
 					costUTotal = costU + costE;
@@ -500,6 +469,9 @@
 			return nodes;
 		},
 
+		// -------------------------------------------------
+		// Public
+
 		getCodeByName: function ( name ) {
 			var stationList = this._stationList, key;
 
@@ -514,32 +486,35 @@
 			return this._stationList[code];
 		},
 
-		findPath: function ( source, destination, isMinimumTransper ) {
-			return this._calculateShortestPath( this._graph, source, destination, isMinimumTransper );
+		shortestRoute: function ( source, destination ) {
+			return this._calculateShortestPath( this._graph, source, destination );
 		},
 
-		displayPath: function ( path ) {
-			var i, j, svgDoc, stations, stationList;
+		minimumTransfers: function ( source, destination ) {
+			return this._calculateShortestPath( this._graph, source, destination, true );
+		},
 
-			if ( !svgDoc || !path ) {
+		highlight: function ( path ) {
+			var i, j, stations, stationList;
+
+			if ( !this._svg || !path ) {
 				return;
 			}
 
-			svgDoc = this._svg;
 			stations = this._stations;
 			stationList = this._stationList;
 
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
 					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._addClassSVG( $( ".station-" + stationList[path[i]] ), "selected" );
+						this._addClassSVG( $( ".station-" + stationList[path[i]] ), "ui-highlight" );
 						break;
 					}
 				}
 			}
 		},
 
-		clearPath: function ( path ) {
+		dishighlight: function ( path ) {
 			var i, j,
 				svgDoc = this._svg,
 				stations = this._stations,
@@ -550,14 +525,14 @@
 			}
 
 			if ( !path ) {
-				this._removeClassSVG( $( "circle" ), "selected" );
+				this._removeClassSVG( $( "circle" ), "ui-highlight" );
 				return;
 			}
 
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
 					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._removeClassSVG( $( ".station-" + stationList[path[i]] ), "selected" );
+						this._removeClassSVG( $( ".station-" + stationList[path[i]] ), "ui-highlight" );
 						break;
 					}
 				}
@@ -568,7 +543,7 @@
 			var view, svgContainer;
 
 			view = this.element;
-			svgContainer = view.find( "ui-routemap-svg" );
+			svgContainer = view.find( "ui-routemap-container" );
 
 			if ( svgContainer.width() !== view.width() ) {
 				svgContainer.width( view.width() );
@@ -576,7 +551,6 @@
 
 			if ( redraw ) {
 				this._clear();
-				this._drawGrid();
 				this._drawLines();
 				this._drawElements();
 			}
@@ -589,7 +563,7 @@
 	} );
 
 	$( window ).on( "pagechange", function () {
-		$( ".ui-page-active .ui-routemap" ).routemap( "refresh", true  );
+		$( ".ui-page-active .ui-routemap" ).routemap( "refresh", true );
 	} ).on( "resize", function () {
 		$( ".ui-page-active .ui-routemap" ).routemap( "refresh" );
 	} );

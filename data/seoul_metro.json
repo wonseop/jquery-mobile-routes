@@ -3,7 +3,7 @@
 	"stationRadius": 4,
 	"exchangeRadius": 6,
 	"stationFont": {
-		"fontSize": 9
+		"fontSize": "12px"
 	},
 	"exchangeStyle": {
 		"fill": "white",
@@ -11,7 +11,7 @@
 		"strokeWidth": 2
 	},
 	"exchangeFont": {
-		"fontSize": 10
+		"fontSize": "12px"
 	},
 	"lines": [{ 
 		"name": "1호선",
@@ -455,9 +455,9 @@
 				{ "code": "622", "coordinates": [ 149, 219 ], "label": { "text": "합정", "position": "sw" } },
 				{ "code": "621", "coordinates": [ 149, 188 ], "label": { "text": "망원", "position": "e" } },
 				{ "code": "620", "coordinates": [ 149, 172 ], "label": { "text": "마포구청", "position": "e" } },
-				{ "code": "619", "coordinates": [ 159, 149 ], "label": { "text": "월드컵경기장", "position": "se" } },
-				{ "code": "618", "coordinates": [ 171, 136 ], "label": { "text": "디지털미디어시티", "position": "n" } },
-				{ "code": "617", "coordinates": [ 181, 126 ], "label": { "text": "증산", "position": "se" } },
+				{ "code": "619", "coordinates": [ 159, 149 ], "label": { "text": "월드컵경기장", "position": "sw" } },
+				{ "code": "618", "coordinates": [ 171, 136 ], "label": { "text": "디지털미디어시티", "position": "e" } },
+				{ "code": "617", "coordinates": [ 181, 126 ], "label": { "text": "증산", "position": "w" } },
 				{ "code": "616", "coordinates": [ 192, 116 ], "label": { "text": "새절", "position": "se" } },
 				{ "code": "610", "coordinates": [ 203, 103 ], "label": { "text": "응암", "position": "nw" } },
 				{ "code": "611", "coordinates": [ 225, 110 ], "label": { "text": "역촌", "position": "s" } },
@@ -565,7 +565,7 @@
 				{ "code": "819", "coordinates": [ 568,395 ], "label": { "text": "장지", "position": "ne" } },
 				{ "code": "820", "coordinates": [ 582,411 ], "label": { "text": "복정", "position": "n" } },
 				{ "code": "821", "coordinates": [ 609,412 ], "label": { "text": "산성", "position": "s" } },
-				{ "code": "822", "coordinates": [ 631,412 ], "label": { "text": "남한산성입구", "position": "s" } },
+				{ "code": "822", "coordinates": [ 631,412 ], "label": { "text": "남한산성입구", "position": "n" } },
 				{ "code": "823", "coordinates": [ 653,412 ], "label": { "text": "단대오거리", "position": "s" } },
 				{ "code": "824", "coordinates": [ 666,415 ], "label": { "text": "신흥", "position": "ne" } },
 				{ "code": "825", "coordinates": [ 671,427 ], "label": { "text": "수진", "position": "e" } },
@@ -839,7 +839,7 @@
 				{ "code": "K320", "coordinates": [ 123,103 ], "label": { "text": "행신", "position": "w" } },
 				{ "code": "K318", "coordinates": [ 123,114 ], "label": { "text": "화전", "position": "w" } },
 				{ "code": "K317", "coordinates": [ 147,136 ], "label": { "text": "수색", "position": "n" } },
-				{ "code": "K316", "coordinates": [ 171,136 ], "label": { "text": "디지털미디어시티", "position": "n" } },
+				{ "code": "K316", "coordinates": [ 171,136 ], "label": { "text": "디지털미디어시티", "position": "e" } },
 				{ "code": "K315", "coordinates": [ 200,158 ], "label": { "text": "가좌", "position": "e" } },
 				{ "code": "P312", "coordinates": [ 232,178 ], "label": { "text": "신촌(경의선)", "position": "n" } },
 				{ "code": "P313", "coordinates": [ 288,233 ], "label": { "text": "서울역", "position": "ne" } }
@@ -896,7 +896,7 @@
 				{ "code": "A07", "coordinates": [ 35,281 ], "label": { "text": "검암", "position": "ne" } },
 				{ "code": "A06", "coordinates": [ 44,294 ], "label": { "text": "계양", "position": "e" } },
 				{ "code": "A05", "coordinates": [ 63, 168 ], "label": { "text": "김포공항", "position": "e" } },
-				{ "code": "A04", "coordinates": [ 171,136 ], "label": { "text": "디지털미디어시티", "position": "n" } },
+				{ "code": "A04", "coordinates": [ 171,136 ], "label": { "text": "디지털미디어시티", "position": "e" } },
 				{ "code": "A03", "coordinates": [ 186,192 ], "label": { "text": "홍대입구", "position": "ne" } },
 				{ "code": "A02", "coordinates": [ 247,231 ], "label": { "text": "공덕", "position": "s" } },
 				{ "code": "A01", "coordinates": [ 288,233 ], "label": { "text": "서울역", "position": "ne" } }

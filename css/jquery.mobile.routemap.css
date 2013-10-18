@@ -1,4 +1,8 @@
-.selected {
+.ui-routemap-container {
+	margin: 40px;
+}
+
+.ui-routemap .ui-highlight {
 	fill: #CCCCCC;
 	stroke: #444444;
 	stroke-width: 2px;
