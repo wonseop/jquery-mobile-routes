@@ -3,14 +3,14 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
-	<title>jQuery Mobile routes demo</title>
+	<title>jQuery Mobile routemap demo</title>
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.css" />
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.js"></script>
 	<script src="../lib/iscroll.js"></script>
 
-	<link rel="stylesheet" href="../css/jquery.mobile.routes.css" />
-	<script src="../src/jquery.mobile.routes.js"></script>
+	<link rel="stylesheet" href="../css/jquery.mobile.routemap.css" />
+	<script src="../src/jquery.mobile.routemap.js"></script>
 	<script>
 		var resizeContent = function ( page ) {
 			var content = page.find('.ui-content'),
@@ -27,10 +27,10 @@
 		},
 		widget;
 
-		$( document ).on( "routescreate", function ( e ) {
+		$( document ).on( "routemapcreate", function ( e ) {
 			var scroller = new window.iScroll( e.target, { hScrollbar: false, vScrollbar: false, zoom: true } );
 
-			widget = $( "#routesTest" );
+			widget = $( "#routemapTest" );
 
 			$( window ).on( "pageshow resize throttledresize", function () {
 				var siblingsHeight = 0;
@@ -45,22 +45,22 @@
 			});
 
 			$( "#languagueSelection input[type='radio']" ).on( "change", function ( e ) {
-				widget.routes( "option", "language", e.target.value );
-				widget.routes( "refresh", true );
+				widget.routemap( "option", "language", e.target.value );
+				widget.routemap( "refresh", true );
 			});
 
 			$( "#shortestWay" ).on( "vclick", function () {
-				var startCode = widget.routes( "getCodeByName", '신갈' ),
-					endCode = widget.routes( "getCodeByName", '구로' ),
+				var startCode = widget.routemap( "getCodeByName", '신갈' ),
+					endCode = widget.routemap( "getCodeByName", '구로' ),
 					path;
 
-				path = widget.routes( "findPath", startCode, endCode );
+				path = widget.routemap( "findPath", startCode, endCode );
 
-				widget.routes( "displayPath", path );
+				widget.routemap( "displayPath", path );
 			});
 
 			$( "#clearWay" ).on( "vclick", function () {
-				widget.routes( "clearPath" );
+				widget.routemap( "clearPath" );
 			});
 		});
 	</script>
@@ -69,12 +69,12 @@
 
 	<div data-role="page">
 		<div data-role="header" data-position="fixed">
-			<h1>jQuery Mobile Routes</h1>
+			<h1>jQuery Mobile routemap</h1>
 		</div><!-- /header -->
 
 		<div data-role="content">
-			<div id="routesTest"
-				data-role="routes"
+			<div id="routemapTest"
+				data-role="routemap"
 				data-db="../data/seoul_metro.json"
 				data-interval="2"
 				data-margin="10">

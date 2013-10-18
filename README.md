@@ -1,4 +1,4 @@
-jquery-mobile-routes
+jquery-mobile-routemap
 ====================
 
 A jquery mobile plugin to render data as a route map

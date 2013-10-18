@@ -1,5 +1,5 @@
 /*!
- * jQuery mobile routes plugin v0.1.0 - Copyright (c) 2013 Wonseop Kim
+ * jQuery mobile routemap plugin v0.1.0 - Copyright (c) 2013 Wonseop Kim
  * Released under MIT license
  */
 
@@ -7,14 +7,14 @@
 	var document = window.document,
 		svgNameSpace = 'http://www.w3.org/2000/svg';
 
-	$.widget( "mobile.routes", $.mobile.widget, {
+	$.widget( "mobile.routemap", $.mobile.widget, {
 		options: {
 			language: null,
 			db: null,
 			gridLine: false,
 			margin: 10,
 			interval: 1,
-			initSelector: ":jqmData(role='routes')"
+			initSelector: ":jqmData(role='routemap')"
 		},
 
 		_svg: null,
@@ -31,7 +31,7 @@
 				view = self.element,
 				svgContainer = $( "<div>" ).appendTo( view );
 
-			svgContainer.addClass( "ui-routes-svg ui-routes-container" );
+			svgContainer.addClass( "ui-routemap-svg ui-routemap-container" );
 
 			self._svg = $( document.createElementNS( svgNameSpace, "svg" ) )
 				.attr( {
@@ -40,7 +40,7 @@
 					'height': "100%"
 				} ).appendTo( svgContainer )[0];
 
-			view.addClass( "ui-routes" );
+			view.addClass( "ui-routemap" );
 
 			$.each( this.options, function ( key, value ) {
 				self._setOption( key, value );
@@ -129,8 +129,8 @@
 				minY = 9999,
 				maxX = 0,
 				maxY = 0,
-				xPosPrev = -1,
-				yPosPrev = -1,
+				xPosPrev,
+				yPosPrev,
 				xPos = 0,
 				yPos = 0,
 				linePath,
@@ -148,6 +148,7 @@
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
 					linePath = "";
+					xPosPrev = yPosPrev = -1;
 					for ( k = 0; k < branch.length; k += 1 ) {
 						station = branch[k];
 						coord = station.coordinates;
@@ -202,7 +203,12 @@
 							if ( xPosPrev === xPos || yPosPrev === yPos ) {
 								linePath += "L" + xPos + "," + yPos;
 							} else {
-								shorthand = branch[ ( k > branch.length - 2 ) ? k  : ( k + 1 )].coordinates;
+								// Catmull-Rom to Cubic Bezier conversion matrix 
+								//    0       1       0       0
+								//  -1/6      1      1/6      0
+								//    0      1/6      1     -1/6
+								//    0       0       1       0
+								shorthand = branch[ ( k > branch.length - 2 ) ? k : ( k + 1 )].coordinates;
 								controlPoint[0] = ( xPosPrev + 6 * xPos - convertCoord( shorthand[0] ) ) / 6;
 								controlPoint[1] = ( yPosPrev + 6 * yPos - convertCoord( shorthand[1] ) ) / 6;
 
@@ -217,13 +223,12 @@
 					}
 
 					this._lines.push( { path: linePath, style: lineStyle } );
-					xPosPrev = yPosPrev = -1;
 				}
 			}
 			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
-			this.element.find( ".ui-routes-container" )
+			this.element.find( ".ui-routemap-container" )
 				.width( ( maxX + minX ) * interval + margin * 2 )
 				.height( ( maxY + minY ) * interval + margin * 2 );
 		},
@@ -563,7 +568,7 @@
 			var view, svgContainer;
 
 			view = this.element;
-			svgContainer = view.find( "ui-routes-svg" );
+			svgContainer = view.find( "ui-routemap-svg" );
 
 			if ( svgContainer.width() !== view.width() ) {
 				svgContainer.width( view.width() );
@@ -580,13 +585,13 @@
 
 	//auto self-init widgets
 	$( document ).on( "pagecreate create", function ( e ) {
-		$.mobile.routes.prototype.enhanceWithin( e.target );
+		$.mobile.routemap.prototype.enhanceWithin( e.target );
 	} );
 
 	$( window ).on( "pagechange", function () {
-		$( ".ui-page-active .ui-routes" ).routes( "refresh", true  );
+		$( ".ui-page-active .ui-routemap" ).routemap( "refresh", true  );
 	} ).on( "resize", function () {
-		$( ".ui-page-active .ui-routes" ).routes( "refresh" );
+		$( ".ui-page-active .ui-routemap" ).routemap( "refresh" );
 	} );
 
 } ( jQuery, this ) );
