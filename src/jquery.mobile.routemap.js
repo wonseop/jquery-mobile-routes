@@ -5,7 +5,30 @@
 
 ( function ( $, window ) {
 	var document = window.document,
-		svgNameSpace = 'http://www.w3.org/2000/svg';
+		svgNameSpace = "http://www.w3.org/2000/svg",
+		// Default style for SVG elements.
+		DEFAULT_STYLE = {
+			font: {
+				fontSize: "12px"
+			},
+			exchangeRadius: 6,
+			exchangeStyle: {
+				fill: "white",
+				stroke: "gray",
+				strokeWidth: 2
+			},
+			stationRadius: 4,
+			stationStyle: {
+				fill: "white",
+				stroke: "black",
+				strokeWidth: 1
+			},
+			lineStyle: {
+				fill: "none",
+				stroke: "black",
+				strokeWidth: 3
+			}
+		};
 
 	$.widget( "mobile.routemap", $.mobile.widget, {
 		options: {
@@ -62,7 +85,7 @@
 					$.ajax( {
 						async: false,
 						global: false,
-						dataType: 'JSON',
+						dataType: "JSON",
 						url : option.db
 					} ).done( function ( result ) {
 						data = result;
@@ -91,7 +114,7 @@
 				$.ajax( {
 					async: false,
 					global: false,
-					dataType: 'JSON',
+					dataType: "JSON",
 					url : data
 				} ).done( function ( result ) {
 					self._languageData = result;
@@ -116,11 +139,11 @@
 				station,
 				duplicatedStation,
 				stationStyle,
-				stationRadius = data.stationRadius,
-				stationFont = data.stationFont,
-				exchangeStyle = data.exchangeStyle,
-				exchangeRadius = data.exchangeRadius,
-				exchangeFont = data.exchangeFont,
+				stationRadius = data.stationRadius || DEFAULT_STYLE.stationRadius,
+				stationFont = $.extend( {}, DEFAULT_STYLE.font, data.stationFont ),
+				exchangeStyle = $.extend( {}, DEFAULT_STYLE.exchangeStyle, data.exchangeStyle ),
+				exchangeRadius = data.exchangeRadius || DEFAULT_STYLE.exchangeRadius,
+				exchangeFont = $.extend( {}, DEFAULT_STYLE.font, data.exchangeFont ),
 				lineStyle,
 				coord,
 				minX = 9999,
@@ -146,8 +169,8 @@
 
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].stations;
-				stationStyle = lines[i].style.station;
-				lineStyle = lines[i].style.line;
+				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
+				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
 					linePath = "";
@@ -156,16 +179,16 @@
 						station = branch[k];
 						coord = station.coordinates;
 
-						if ( graph[station.code] === undefined ) {
-							graph[station.code] = {};
+						if ( graph[station.id] === undefined ) {
+							graph[station.id] = {};
 						}
 
 						if ( branch[k - 1] !== undefined ) {
-							graph[station.code][branch[k - 1].code] = 3;
+							graph[station.id][branch[k - 1].id] = 3;
 						}
 
 						if ( branch[k + 1] !== undefined ) {
-							graph[station.code][branch[k + 1].code] = 3;
+							graph[station.id][branch[k + 1].id] = 3;
 						}
 
 						// info
@@ -179,7 +202,7 @@
 							this._stationsMap[coord[0]] = [];
 						}
 
-						this._stationList[ station.code ] = station.label.text;
+						this._stationList[ station.id ] = station.label.text;
 
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
@@ -194,8 +217,8 @@
 							duplicatedStation.font = exchangeFont;
 							duplicatedStation.exchange = true;
 
-							graph[station.code][duplicatedStation.code] = "TRANSPER";
-							graph[duplicatedStation.code][station.code] = "TRANSPER";
+							graph[station.id][duplicatedStation.id] = "TRANSPER";
+							graph[duplicatedStation.id][station.id] = "TRANSPER";
 						}
 
 						// lines
@@ -333,8 +356,8 @@
 
 			for ( key in attributes ) {
 				value = attributes[key];
-				if ( value && ( typeof value !== 'string' || value !== '' ) ) {
-					node.setAttribute( key.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase(), value);
+				if ( value && ( typeof value !== "string" || value !== "" ) ) {
+					node.setAttribute( key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase(), value);
 				}
 			}
 
@@ -346,7 +369,7 @@
 			var node = this._node( parent, "text", settings, style ),
 				texts, i;
 
-			if ( typeof value !== 'string' ) {
+			if ( typeof value !== "string" ) {
 				value = "";
 			}
 
@@ -361,23 +384,23 @@
 		},
 
 		_addClassSVG: function ( element, className ) {
-			var classAttr = element.attr('class');
+			var classAttr = element.attr( "class" );
 
 			if ( classAttr.indexOf( className ) !== -1 ) {
 				return;
 			}
 
-			classAttr = classAttr + ( classAttr.length === 0 ? '' : ' ' ) + className;
-			element.attr( 'class', classAttr );
+			classAttr = classAttr + ( classAttr.length === 0 ? "" : " " ) + className;
+			element.attr( "class", classAttr );
 		},
 
 		_removeClassSVG: function ( elements, className ) {
 			$.each( elements, function () {
 				var element = $( this ),
-					classAttr = element.attr('class');
+					classAttr = element.attr( "class" );
 
-				classAttr = classAttr.replace( new RegExp( '\\s?' + className ), '' );
-				element.attr( 'class', classAttr );
+				classAttr = classAttr.replace( new RegExp( "\\s?" + className ), "" );
+				element.attr( "class", classAttr );
 			} );
 		},
 
@@ -455,7 +478,7 @@
 			}
 
 			if ( destination !== undefined && costs[destination] === undefined ) {
-				msg = ['Could not find a path from ', source, ' to ', destination, '.'].join( '' );
+				msg = ["Could not find a path from ", source, " to ", destination, "."].join( "" );
 				throw new Error( msg );
 			}
 
@@ -472,7 +495,7 @@
 		// -------------------------------------------------
 		// Public
 
-		getCodeByName: function ( name ) {
+		getIdByName: function ( name ) {
 			var stationList = this._stationList, key;
 
 			for ( key in stationList ) {
@@ -482,8 +505,8 @@
 			}
 		},
 
-		getNameByCode: function ( code ) {
-			return this._stationList[code];
+		getNameById: function ( id ) {
+			return this._stationList[id];
 		},
 
 		shortestRoute: function ( source, destination ) {
@@ -558,11 +581,11 @@
 	} );
 
 	//auto self-init widgets
-	$( document ).on( "pagecreate create", function ( e ) {
+	$.mobile.document.on( "pagecreate create", function ( e ) {
 		$.mobile.routemap.prototype.enhanceWithin( e.target );
 	} );
 
-	$( window ).on( "pagechange", function () {
+	$.mobile.window.on( "pagechange", function () {
 		$( ".ui-page-active .ui-routemap" ).routemap( "refresh", true );
 	} ).on( "resize", function () {
 		$( ".ui-page-active .ui-routemap" ).routemap( "refresh" );
