@@ -50,8 +50,8 @@
 			});
 
 			$( "#shortestWay" ).on( "vclick", function () {
-				var startCode = widget.routemap( "getCodeByName", '신갈' ),
-					endCode = widget.routemap( "getCodeByName", '구로' ),
+				var startCode = widget.routemap( "getIdByName", '신갈' ),
+					endCode = widget.routemap( "getIdByName", '구로' ),
 					path;
 
 				path = widget.routemap( "shortestRoute", startCode, endCode );
