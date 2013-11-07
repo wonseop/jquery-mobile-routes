@@ -62,6 +62,20 @@
 			$( "#clearWay" ).on( "vclick", function () {
 				widget.routemap( "dishighlight" );
 			});
+
+			//////////////////// for widget function test codes //////////////////////
+			$("#routemapTest").on("select", function( e, name ) {
+				var path,
+					targetObj = e.target;
+				if (targetObj.tagName === "circle") {
+					targetObj.setAttribute("stroke", "red");
+					targetObj.setAttribute("stroke-width", "5");
+				} else if ( targetObj.tagName === "path" ) {
+					targetObj.setAttribute("stroke-width", "5");
+					path = widget.routemap( "getStationsByLineName", name );
+					widget.routemap( "highlight", path );
+				}
+			});
 		});
 	</script>
 </head>

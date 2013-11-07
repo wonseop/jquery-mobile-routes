@@ -46,6 +46,7 @@
 		_stationsMap: [],
 		_stationList: {},
 		_graph: {},
+		_data: [],
 
 		_create: function () {
 			var self = this,
@@ -71,6 +72,13 @@
 			if ( document.readyState === "complete" ) {
 				self.refresh( true );
 			}
+
+			svgContainer.on( "click", function ( event ) {
+				var _clickedTarget = event.target;
+				if ( _clickedTarget.tagName === "circle" || _clickedTarget.tagName === "path") {
+					$( _clickedTarget ).trigger( "select" , _clickedTarget.getAttribute( "name" ) );
+				}
+			});
 		},
 
 		_setOption: function ( key, value ) {
@@ -95,7 +103,9 @@
 				} else {
 					data = window[value];
 				}
+				self._data = data;
 				self._processData( data );
+
 				break;
 
 			case "language":
@@ -155,6 +165,7 @@
 				xPos = 0,
 				yPos = 0,
 				linePath,
+				lineName,
 				shorthand,
 				controlPoint = [],
 				graph= {},
@@ -171,6 +182,7 @@
 				branches = lines[i].stations;
 				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
 				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
+				lineName = lines[i].name;
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
 					linePath = "";
@@ -248,7 +260,7 @@
 						yPosPrev = yPos;
 					}
 
-					this._lines.push( { path: linePath, style: lineStyle } );
+					this._lines.push( { path: linePath, style: lineStyle, name: lineName } );
 				}
 			}
 			this._drawingRange = [ minX, minY, maxX, maxY ];
@@ -264,7 +276,8 @@
 
 			for ( i = 0; i < length; i += 1 ) {
 				this._node( null, "path", {
-					d: lines[i].path
+					d: lines[i].path,
+					name: lines[i].name
 				}, lines[i].style );
 			}
 		},
@@ -292,12 +305,17 @@
 				position = [unit * coordinates[0], unit * coordinates[1] ];
 				stationRadius = station.radius;
 
+				stationName = this._languageData ?
+					( this._languageData[station.label.text] || station.label.text ) :
+						station.label.text;
+
 				// draw station
 				this._node( null, "circle", {
-					class: "station-" + station.label.text,
+					class: "station-" + station.id,
 					cx: position[0],
 					cy: position[1],
-					r: stationRadius
+					r: stationRadius,
+					name: stationName
 				}, station.style );
 
 				group = this._node( null, "g" );
@@ -305,10 +323,6 @@
 				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
 
 				// draw station name
-				stationName = this._languageData ?
-					( this._languageData[station.label.text] || station.label.text ) :
-						station.label.text;
-
 				text = this._text( group, stationName || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
@@ -488,7 +502,6 @@
 			}
 
 			nodes.reverse();
-
 			return nodes;
 		},
 
@@ -509,6 +522,32 @@
 			return this._stationList[id];
 		},
 
+		getStationsByLineName: function ( lineName ) {
+			var data = this._data,
+				lines = data.lines,
+				names=[],
+				branches,
+				branch,
+				stations,
+				station,
+				i, j;
+
+			for ( i = 0; i < lines.length; i += 1 ) {
+				branches = lines[i].stations;
+				
+				if ( lines[i].name === lineName ) {
+					for ( j = 0; j < branches.length; j += 1 ) {
+						branch = branches[j];
+						for ( k = 0; k < branch.length; k += 1 ) {
+							station = branch[k];
+							names.push( station.id );
+						}
+					}
+				}
+			}
+			return names;
+		},
+
 		shortestRoute: function ( source, destination ) {
 			return this._calculateShortestPath( this._graph, source, destination );
 		},
@@ -519,7 +558,6 @@
 
 		highlight: function ( path ) {
 			var i, j, stations, stationList;
-
 			if ( !this._svg || !path ) {
 				return;
 			}
@@ -530,7 +568,7 @@
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
 					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._addClassSVG( $( ".station-" + stationList[path[i]] ), "ui-highlight" );
+						this._addClassSVG( $( ".station-" + stations[j].id ), "ui-highlight" );
 						break;
 					}
 				}
@@ -555,7 +593,7 @@
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
 					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._removeClassSVG( $( ".station-" + stationList[path[i]] ), "ui-highlight" );
+						this._removeClassSVG( $( ".station-" + stations[j].id ), "ui-highlight" );
 						break;
 					}
 				}
