@@ -241,7 +241,7 @@
 							if ( xPosPrev === xPos || yPosPrev === yPos ) {
 								linePath += "L" + xPos + "," + yPos;
 							} else {
-								// Catmull-Rom to Cubic Bezier conversion matrix 
+								// Catmull-Rom to Cubic Bezier conversion matrix
 								//    0       1       0       0
 								//  -1/6      1      1/6      0
 								//    0      1/6      1     -1/6
@@ -311,7 +311,7 @@
 
 				// draw station
 				this._node( null, "circle", {
-					class: "station-" + station.id,
+					"class": "station-" + station.id,
 					cx: position[0],
 					cy: position[1],
 					r: stationRadius,
@@ -528,9 +528,8 @@
 				names=[],
 				branches,
 				branch,
-				stations,
 				station,
-				i, j;
+				i, j, k;
 
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].stations;
