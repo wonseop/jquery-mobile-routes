@@ -10,6 +10,18 @@
 	<script src="../lib/iscroll.js"></script>
 
 	<link rel="stylesheet" href="../css/jquery.mobile.routemap.css" />
+	<style>
+		.ui-station-selected {
+			stroke: #909;
+			stroke-width: 10;
+			fill: #f6f;
+		}
+
+		.ui-line-selected {
+			stroke: #909;
+			stroke-width: 10;
+		}
+	</style>
 	<script src="../src/jquery.mobile.routemap.js"></script>
 	<script>
 		var resizeContent = function ( page ) {
@@ -64,16 +76,23 @@
 			});
 
 			//////////////////// for widget function test codes //////////////////////
-			$("#routemapTest").on("select", function( e, name ) {
-				var path,
-					targetObj = e.target;
-				if (targetObj.tagName === "circle") {
-					targetObj.setAttribute("stroke", "red");
-					targetObj.setAttribute("stroke-width", "5");
-				} else if ( targetObj.tagName === "path" ) {
-					targetObj.setAttribute("stroke-width", "5");
-					path = widget.routemap( "getStationsByLineName", name );
-					widget.routemap( "highlight", path );
+			$("#routemapTest").on( "select", function( e, name ) {
+				var path, target = e.target;
+
+				if ( target.classList.contains( "ui-station" ) ) {
+					widget.find( ".ui-station" ).each( function () {
+						this.classList.remove( "ui-station-selected" );
+					} );
+
+					target.classList.add( "ui-station-selected" );
+				} else if ( target.classList.contains( "ui-line" ) ) {
+					widget.find( ".ui-line" ).each( function () {
+						this.classList.remove( "ui-line-selected" );
+					} );
+
+					widget.find( ".ui-line-" + name ).each( function () {
+						this.classList.add( "ui-line-selected" );
+					} );
 				}
 			});
 		});

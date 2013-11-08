@@ -179,7 +179,7 @@
 				};
 
 			for ( i = 0; i < lines.length; i += 1 ) {
-				branches = lines[i].stations;
+				branches = lines[i].branches;
 				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
 				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
 				lineName = lines[i].name;
@@ -214,7 +214,7 @@
 							this._stationsMap[coord[0]] = [];
 						}
 
-						this._stationList[ station.id ] = station.label.text;
+						this._stationList[ station.id ] = station.label;
 
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
@@ -276,8 +276,8 @@
 
 			for ( i = 0; i < length; i += 1 ) {
 				this._node( null, "path", {
-					d: lines[i].path,
-					name: lines[i].name
+					"class": "ui-line ui-id-" + lines[i].id,
+					d: lines[i].path
 				}, lines[i].style );
 			}
 		},
@@ -306,28 +306,27 @@
 				stationRadius = station.radius;
 
 				stationName = this._languageData ?
-					( this._languageData[station.label.text] || station.label.text ) :
-						station.label.text;
+					( this._languageData[label] || label ) :
+						label;
 
 				// draw station
 				this._node( null, "circle", {
-					"class": "station-" + station.id,
+					"class": "ui-station ui-id-" + station.id,
 					cx: position[0],
 					cy: position[1],
-					r: stationRadius,
-					name: stationName
+					r: stationRadius
 				}, station.style );
 
 				group = this._node( null, "g" );
 
-				labelAngle = ( label.angle ) ? -parseInt( label.angle, 10 ) : 0;
+				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
 
 				// draw station name
 				text = this._text( group, stationName || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
 
-				switch ( label.position || "s" ) {
+				switch ( station.labelPosition || "s" ) {
 				case "w" :
 					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
 					break;
@@ -566,8 +565,8 @@
 
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
-					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._addClassSVG( $( ".station-" + stations[j].id ), "ui-highlight" );
+					if ( stations[j].label === stationList[path[i]] ) {
+						this._addClassSVG( $( ".ui-id-" + stations[j].id ), "ui-highlight" );
 						break;
 					}
 				}
@@ -591,8 +590,8 @@
 
 			for ( i = 0; i < path.length; i++ ) {
 				for ( j = 0; j < stations.length; j += 1 ) {
-					if ( stations[j].label.text === stationList[path[i]] ) {
-						this._removeClassSVG( $( ".station-" + stations[j].id ), "ui-highlight" );
+					if ( stations[j].label === stationList[path[i]] ) {
+						this._removeClassSVG( $( ".ui-id-" + stations[j].id ), "ui-highlight" );
 						break;
 					}
 				}
