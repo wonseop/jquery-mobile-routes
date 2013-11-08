@@ -74,9 +74,17 @@
 			}
 
 			svgContainer.on( "click", function ( event ) {
-				var _clickedTarget = event.target;
-				if ( _clickedTarget.tagName === "circle" || _clickedTarget.tagName === "path") {
-					$( _clickedTarget ).trigger( "select" , _clickedTarget.getAttribute( "name" ) );
+				var target = event.target,
+					targetId,
+					clsName;
+
+				if ( target.tagName === "circle" || target.tagName === "path") {
+					clsName = ( target.tagName === "circle" ) ? "ui-station ui-id-" : "ui-line ui-id-";
+					
+					targetId = target.getAttribute("class")
+								.replace( new RegExp( "\\s?" + clsName ), "" )
+								.split(" ")[0];
+					$( target ).trigger( "select" , targetId );
 				}
 			});
 		},
@@ -165,7 +173,7 @@
 				xPos = 0,
 				yPos = 0,
 				linePath,
-				lineName,
+				lineId,
 				shorthand,
 				controlPoint = [],
 				graph= {},
@@ -182,7 +190,6 @@
 				branches = lines[i].branches;
 				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
 				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
-				lineName = lines[i].name;
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
 					linePath = "";
@@ -259,8 +266,8 @@
 						xPosPrev = xPos;
 						yPosPrev = yPos;
 					}
-
-					this._lines.push( { path: linePath, style: lineStyle, name: lineName } );
+					lineId = lines[i].id;
+					this._lines.push( { path: linePath, style: lineStyle, id: lineId } );
 				}
 			}
 			this._drawingRange = [ minX, minY, maxX, maxY ];
@@ -521,10 +528,10 @@
 			return this._stationList[id];
 		},
 
-		getStationsByLineName: function ( lineName ) {
+		getNamesBylineId: function ( lineId ) {
 			var data = this._data,
 				lines = data.lines,
-				names=[],
+				ids=[],
 				branches,
 				branch,
 				station,
@@ -533,17 +540,17 @@
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].stations;
 				
-				if ( lines[i].name === lineName ) {
+				if ( lines[i].id === lineId ) {
 					for ( j = 0; j < branches.length; j += 1 ) {
 						branch = branches[j];
 						for ( k = 0; k < branch.length; k += 1 ) {
 							station = branch[k];
-							names.push( station.id );
+							ids.push( station.id );
 						}
 					}
 				}
 			}
-			return names;
+			return ids;
 		},
 
 		shortestRoute: function ( source, destination ) {

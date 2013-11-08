@@ -76,8 +76,9 @@
 			});
 
 			//////////////////// for widget function test codes //////////////////////
-			$("#routemapTest").on( "select", function( e, name ) {
+			$("#routemapTest").on( "select", function( e, id ) {
 				var path, target = e.target;
+				console.log(id);
 
 				if ( target.classList.contains( "ui-station" ) ) {
 					widget.find( ".ui-station" ).each( function () {
@@ -90,8 +91,9 @@
 						this.classList.remove( "ui-line-selected" );
 					} );
 
-					widget.find( ".ui-line-" + name ).each( function () {
+					widget.find( ".ui-line.ui-id-" + id ).each( function () {
 						this.classList.add( "ui-line-selected" );
+						
 					} );
 				}
 			});
