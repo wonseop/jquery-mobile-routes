@@ -528,7 +528,7 @@
 			return this._stationList[id];
 		},
 
-		getNamesBylineId: function ( lineId ) {
+		getStationsBylineId: function ( lineId ) {
 			var data = this._data,
 				lines = data.lines,
 				ids=[],
@@ -538,8 +538,7 @@
 				i, j, k;
 
 			for ( i = 0; i < lines.length; i += 1 ) {
-				branches = lines[i].stations;
-				
+				branches = lines[i].branches;
 				if ( lines[i].id === lineId ) {
 					for ( j = 0; j < branches.length; j += 1 ) {
 						branch = branches[j];
