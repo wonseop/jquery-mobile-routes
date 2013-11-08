@@ -28,7 +28,8 @@
 				stroke: "black",
 				strokeWidth: 3
 			}
-		};
+		},
+		regId = new RegExp( "\\bui-id-([\\w-]+)\\b" );
 
 	$.widget( "mobile.routemap", $.mobile.widget, {
 		options: {
@@ -76,15 +77,15 @@
 			svgContainer.on( "click", function ( event ) {
 				var target = event.target,
 					targetId,
-					clsName;
+					tagName = target.tagName,
+					targetId;
 
-				if ( target.tagName === "circle" || target.tagName === "path") {
-					clsName = ( target.tagName === "circle" ) ? "ui-station ui-id-" : "ui-line ui-id-";
-					
-					targetId = target.getAttribute("class")
-								.replace( new RegExp( "\\s?" + clsName ), "" )
-								.split(" ")[0];
-					$( target ).trigger( "select" , targetId );
+				if ( tagName === "circle" || tagName === "path" ) {
+					targetId = regId.exec( target.getAttribute( "class" ) );
+
+					if ( targetId ) {
+						$( target ).trigger( "select", targetId[1] );
+					}
 				}
 			});
 		},
@@ -173,7 +174,6 @@
 				xPos = 0,
 				yPos = 0,
 				linePath,
-				lineId,
 				shorthand,
 				controlPoint = [],
 				graph= {},
@@ -266,8 +266,7 @@
 						xPosPrev = xPos;
 						yPosPrev = yPos;
 					}
-					lineId = lines[i].id;
-					this._lines.push( { path: linePath, style: lineStyle, id: lineId } );
+					this._lines.push( { path: linePath, style: lineStyle, id: lines[i].id } );
 				}
 			}
 			this._drawingRange = [ minX, minY, maxX, maxY ];
@@ -312,10 +311,6 @@
 				position = [unit * coordinates[0], unit * coordinates[1] ];
 				stationRadius = station.radius;
 
-				stationName = this._languageData ?
-					( this._languageData[label] || label ) :
-						label;
-
 				// draw station
 				this._node( null, "circle", {
 					"class": "ui-station ui-id-" + station.id,
@@ -329,6 +324,10 @@
 				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
 
 				// draw station name
+				stationName = this._languageData ?
+					( this._languageData[label] || label ) :
+						label;
+
 				text = this._text( group, stationName || "?", {},
 					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
 				);
@@ -508,6 +507,7 @@
 			}
 
 			nodes.reverse();
+
 			return nodes;
 		},
 
@@ -562,6 +562,7 @@
 
 		highlight: function ( path ) {
 			var i, j, stations, stationList;
+
 			if ( !this._svg || !path ) {
 				return;
 			}
