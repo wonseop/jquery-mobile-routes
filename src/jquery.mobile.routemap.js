@@ -1,8 +1,3 @@
-/*!
- * jQuery mobile routemap plugin v0.1.0 - Copyright (c) 2013 Wonseop Kim
- * Released under MIT license
- */
-
 ( function ( $, window ) {
 	var document = window.document,
 		svgNameSpace = "http://www.w3.org/2000/svg",
@@ -45,16 +40,13 @@
 		_lines: [],
 		_stations: [],
 		_stationsMap: [],
-		_stationList: {},
+		_nameList: {},
 		_graph: {},
-		_data: [],
 
 		_create: function () {
 			var self = this,
 				view = self.element,
-				svgContainer = $( "<div>" ).appendTo( view );
-
-			svgContainer.addClass( "ui-routemap-container" );
+				routemapContainer = $( "<div class='ui-routemap-container'>" ).appendTo( view );
 
 			self._svg = $( document.createElementNS( svgNameSpace, "svg" ) )
 				.attr( {
@@ -62,7 +54,7 @@
 					"width": "100%",
 					"height": "100%",
 					"class": "ui-routemap-svg"
-				} ).appendTo( svgContainer )[0];
+				} ).appendTo( routemapContainer )[0];
 
 			view.addClass( "ui-routemap" );
 
@@ -74,20 +66,17 @@
 				self.refresh( true );
 			}
 
-			svgContainer.on( "click", function ( event ) {
-				var target = event.target,
+			routemapContainer.on( "vclick", function ( event ) {
+				var target = $( event.target ),
 					targetId,
-					tagName = target.tagName,
-					targetId;
-
-				if ( tagName === "circle" || tagName === "path" ) {
-					targetId = regId.exec( target.getAttribute( "class" ) );
-
-					if ( targetId ) {
-						$( target ).trigger( "select", targetId[1] );
-					}
+					classList = target[0].classList;
+				if ( classList.contains( "ui-shape" ) || classList.contains( "ui-label" ) ) {
+					targetId = regId.exec( target.attr( "class" ) );
+				} else if ( classList.contains( "ui-line" ) ) {
+					targetId = regId.exec( target.attr( "class" ) );
 				}
-			});
+				target.trigger( "select", targetId ? targetId[1] : undefined );
+			} );
 		},
 
 		_setOption: function ( key, value ) {
@@ -112,9 +101,7 @@
 				} else {
 					data = window[value];
 				}
-				self._data = data;
 				self._processData( data );
-
 				break;
 
 			case "language":
@@ -156,7 +143,7 @@
 				branches,
 				branch,
 				station,
-				duplicatedStation,
+				exchange,
 				stationStyle,
 				stationRadius = data.stationRadius || DEFAULT_STYLE.stationRadius,
 				stationFont = $.extend( {}, DEFAULT_STYLE.font, data.stationFont ),
@@ -177,11 +164,11 @@
 				shorthand,
 				controlPoint = [],
 				graph= {},
-				svgContainer = this.element.find( ".ui-routemap-container" ),
-				marginTop = parseInt( svgContainer.css( "marginTop" ), 10 ) || 0,
-				marginBottom = parseInt( svgContainer.css( "marginBottom" ), 10 ) || 0,
-				marginLeft = parseInt( svgContainer.css( "marginLeft" ), 10 ) || 0,
-				marginRight = parseInt( svgContainer.css( "marginRight" ), 10 ) || 0,
+				routemapContainer = this.element.find( ".ui-routemap-container" ),
+				marginTop = parseInt( routemapContainer.css( "marginTop" ), 10 ) || 0,
+				marginBottom = parseInt( routemapContainer.css( "marginBottom" ), 10 ) || 0,
+				marginLeft = parseInt( routemapContainer.css( "marginLeft" ), 10 ) || 0,
+				marginRight = parseInt( routemapContainer.css( "marginRight" ), 10 ) || 0,
 				convertCoord = function ( pos ) {
 					return ( unit * pos );
 				};
@@ -190,6 +177,8 @@
 				branches = lines[i].branches;
 				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
 				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
+				this._nameList[ lines[i].id ] = lines[i].name;
+
 				for ( j = 0; j < branches.length; j += 1 ) {
 					branch = branches[j];
 					linePath = "";
@@ -221,23 +210,25 @@
 							this._stationsMap[coord[0]] = [];
 						}
 
-						this._stationList[ station.id ] = station.label;
+						this._nameList[ station.id ] = station.label;
 
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
 							station.radius = stationRadius;
 							station.font = stationFont;
+							station.transfer = [];
 							this._stationsMap[coord[0]][coord[1]] = station;
 							this._stations.push( station );
-						} else if ( !this._stationsMap[coord[0]][coord[1]].exchange ) {
-							duplicatedStation = this._stationsMap[coord[0]][coord[1]];
-							duplicatedStation.style = exchangeStyle;
-							duplicatedStation.radius = exchangeRadius;
-							duplicatedStation.font = exchangeFont;
-							duplicatedStation.exchange = true;
-
-							graph[station.id][duplicatedStation.id] = "TRANSPER";
-							graph[duplicatedStation.id][station.id] = "TRANSPER";
+						} else {
+							exchange = this._stationsMap[coord[0]][coord[1]];
+							if ( !exchange.transfer.length ) {
+								exchange.style = exchangeStyle;
+								exchange.radius = exchangeRadius;
+								exchange.font = exchangeFont;
+							}
+							exchange.transfer.push( station.id );
+							graph[station.id][exchange.id] = "TRANSPER";
+							graph[exchange.id][station.id] = "TRANSPER";
 						}
 
 						// lines
@@ -272,7 +263,7 @@
 			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
-			svgContainer.width( ( maxX + minX ) * unit + marginLeft + marginRight )
+			routemapContainer.width( ( maxX + minX ) * unit + marginLeft + marginRight )
 				.height( ( maxY + minY ) * unit + marginTop + marginBottom );
 		},
 
@@ -288,6 +279,31 @@
 			}
 		},
 
+		_drawLegend: function () {
+			var i, lines = this._lines,
+				length = lines.length,
+				lineId,
+				group = this._node( null, "g", { "class": "ui-legend"} );
+
+			for ( i = 0; i < length; i += 1 ) {
+				if ( lineId !== lines[i].id ) {
+					lineId = lines[i].id;
+					this._node( group, "line", {
+						"class": "ui-line ui-id-" + lineId,
+						x1: 0,
+						y1: 10 + (i * 15),
+						x2: 20,
+						y2: 10 + (i * 15)
+					}, lines[i].style );
+
+					this._node( group, "text", {
+						x : 25,
+						y : 13 + (i * 15)
+					}, { fontSize: DEFAULT_STYLE.font.fontSize || "0.75rem"} ).appendChild( group.ownerDocument.createTextNode( lineId ) );
+				}
+			}
+		},
+
 		_drawElements: function () {
 			var i,
 				options = this.options,
@@ -295,71 +311,98 @@
 				stationRadius,
 				stations = this._stations,
 				station,
+				// stationGroup,
 				label,
 				coordinates,
 				position,
-				labelPosition = [0, 0],
-				labelAngle = 0,
-				group,
-				stationName,
-				text;
+				// labelPosition = [0, 0],
+				// labelAngle = 0,
+				// textGroup,
+				// stationName,
+				// text,
+				classes,
+				stationborder,
+				$stationCircle,
+				$routemapContainer = this.element.find( ".ui-routemap-container" ),
+				$stationsDiv = $( document.createElement( "div" ) )
+					.appendTo( $routemapContainer )
+					.addClass("ui-stations");
 
 			for ( i = 0; i < stations.length; i += 1 ) {
 				station = stations[i];
 				label = station.label;
 				coordinates = station.coordinates;
 				position = [unit * coordinates[0], unit * coordinates[1] ];
-				stationRadius = station.radius;
 
-				// draw station
-				this._node( null, "circle", {
-					"class": "ui-station ui-id-" + station.id,
-					cx: position[0],
-					cy: position[1],
-					r: stationRadius
-				}, station.style );
-
-				group = this._node( null, "g" );
-
-				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
-
-				// draw station name
-				stationName = this._languageData ?
-					( this._languageData[label] || label ) :
-						label;
-
-				text = this._text( group, stationName || "?", {},
-					{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
-				);
-
-				switch ( station.labelPosition || "s" ) {
-				case "w" :
-					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
-					break;
-				case "e" :
-					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius / 2 ];
-					break;
-				case "s" :
-					labelPosition = [ position[0] - text.getBBox().width / 2, position[1] + stationRadius + text.getBBox().height ];
-					break;
-				case "n" :
-					labelPosition = [ position[0] - text.getBBox().width / 2, position[1] - stationRadius - text.getBBox().height / 3 ];
-					break;
-				case "nw" :
-					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] - stationRadius / 2 - text.getBBox().height / 3  ];
-					break;
-				case "ne" :
-					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] - stationRadius / 2 - text.getBBox().height / 3 ];
-					break;
-				case "sw" :
-					labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius + text.getBBox().height / 2  ];
-					break;
-				case "se" :
-					labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius + text.getBBox().height / 2 ];
-					break;
+				classes = "ui-shape ui-id-" + station.id;
+				if ( station.transfer.length ) {
+					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-transfer";
 				}
+				$stationCircle = $( document.createElement( "div" ) )
+					.appendTo( $stationsDiv )
+					.addClass( classes );
 
-				group.setAttribute( "transform", "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" );
+				stationborder = $stationCircle.outerWidth(true) - $stationCircle.innerWidth();
+				stationRadius = $stationCircle.width();
+
+				$stationCircle.css( {
+					"top" : position[1] + $routemapContainer.position().top - stationRadius - stationborder/2,
+					"left" : position[0] + $routemapContainer.position().left - stationRadius - stationborder/2,
+					width : stationRadius * 2,
+					height : stationRadius * 2,
+					"border-color" : station.style.stroke
+				} );
+				// stationGroup = this._node( null, "g", {
+				// 	"class": classes
+				// } );
+				// // draw station
+
+				// this._node( stationGroup, "circle", {
+				// 	"class": "ui-shape",
+				// 	cx: position[0],
+				// 	cy: position[1],
+				// 	r: stationRadius
+				// }, station.style );
+				// textGroup = this._node( stationGroup, "g" );
+				// labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
+
+				// // draw station name
+				// stationName = this._languageData ?
+				// 	( this._languageData[label] || label ) :
+				// 		label;
+
+				// text = this._text( textGroup, stationName || "?", { "class": "ui-label" },
+				// 	{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
+				// );
+
+				// switch ( station.labelPosition || "s" ) {
+				// case "w" :
+				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
+				// 	break;
+				// case "e" :
+				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius / 2 ];
+				// 	break;
+				// case "s" :
+				// 	labelPosition = [ position[0] - text.getBBox().width / 2, position[1] + stationRadius + text.getBBox().height ];
+				// 	break;
+				// case "n" :
+				// 	labelPosition = [ position[0] - text.getBBox().width / 2, position[1] - stationRadius - text.getBBox().height / 3 ];
+				// 	break;
+				// case "nw" :
+				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] - stationRadius / 2 - text.getBBox().height / 3  ];
+				// 	break;
+				// case "ne" :
+				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] - stationRadius / 2 - text.getBBox().height / 3 ];
+				// 	break;
+				// case "sw" :
+				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius + text.getBBox().height / 2  ];
+				// 	break;
+				// case "se" :
+				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius + text.getBBox().height / 2 ];
+				// 	break;
+				// }
+
+				// textGroup.setAttribute( "transform", "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" );
 			}
 		},
 
@@ -395,8 +438,10 @@
 			texts = value.split( "\n" );
 
 			for ( i = 0; i < texts.length; i += 1 ) {
-				this._node( node, "tspan", { x: "0",  y: ( settings.fontSize * i ) }, {} )
-					.appendChild( node.ownerDocument.createTextNode( texts[i] ) );
+				this._node( node, "tspan", {
+					x: "0",
+					y: ( settings.fontSize * i )
+				}, {} ).appendChild( node.ownerDocument.createTextNode( texts[i] ) );
 			}
 
 			return node;
@@ -436,8 +481,8 @@
 				costE,
 				costUTotal,
 				costV,
-				first_visit,
 				msg,
+				destCost,
 				nodes = [];
 
 			function PriorityQueue() {
@@ -487,8 +532,7 @@
 					costUTotal = costU + costE;
 
 					costV = costs[v];
-					first_visit = ( costs[v] === undefined );
-					if ( first_visit || costV > costUTotal ) {
+					if ( costV === undefined  || costV > costUTotal ) {
 						costs[v] = costUTotal;
 						open.push( v, costUTotal );
 						predecessors[v] = u;
@@ -501,6 +545,8 @@
 				throw new Error( msg );
 			}
 
+			destCost = costs[destination];
+
 			while ( destination ) {
 				nodes.push( destination );
 				destination = predecessors[destination];
@@ -508,130 +554,112 @@
 
 			nodes.reverse();
 
-			return nodes;
+			return { path: nodes, cost: destCost };
 		},
 
 		// -------------------------------------------------
 		// Public
 
-		getIdByName: function ( name ) {
-			var stationList = this._stationList, key;
+		getIdsByName: function ( name ) {
+			var nameList = this._nameList, key, ret = [];
 
-			for ( key in stationList ) {
-				if( stationList[key] === name ) {
-					return key;
+			for ( key in nameList ) {
+				if( nameList[key] === name ) {
+					ret.push( key );
 				}
 			}
+			return ret;
 		},
 
 		getNameById: function ( id ) {
-			return this._stationList[id];
-		},
-
-		getStationsBylineId: function ( lineId ) {
-			var data = this._data,
-				lines = data.lines,
-				ids=[],
-				branches,
-				branch,
-				station,
-				i, j, k;
-
-			for ( i = 0; i < lines.length; i += 1 ) {
-				branches = lines[i].branches;
-				if ( lines[i].id === lineId ) {
-					for ( j = 0; j < branches.length; j += 1 ) {
-						branch = branches[j];
-						for ( k = 0; k < branch.length; k += 1 ) {
-							station = branch[k];
-							ids.push( station.id );
-						}
-					}
-				}
-			}
-			return ids;
+			return this._nameList[id];
 		},
 
 		shortestRoute: function ( source, destination ) {
-			return this._calculateShortestPath( this._graph, source, destination );
+			return this._calculateShortestPath( this._graph, source, destination ).path;
 		},
 
 		minimumTransfers: function ( source, destination ) {
-			return this._calculateShortestPath( this._graph, source, destination, true );
-		},
+			var i = 0, j = 0, route,
+				result = { cost: 9999 },
+				sources = this.getIdsByName( this.getNameById( source ) ),
+				destinations = this.getIdsByName( this.getNameById( destination ) ),
+				sourcesLength = sources.length,
+				destinationsLength = destinations.length;
 
-		highlight: function ( path ) {
-			var i, j, stations, stationList;
-
-			if ( !this._svg || !path ) {
-				return;
-			}
-
-			stations = this._stations;
-			stationList = this._stationList;
-
-			for ( i = 0; i < path.length; i++ ) {
-				for ( j = 0; j < stations.length; j += 1 ) {
-					if ( stations[j].label === stationList[path[i]] ) {
-						this._addClassSVG( $( ".ui-id-" + stations[j].id ), "ui-highlight" );
-						break;
+			for ( i = 0; i < sourcesLength; i++ ) {
+				for ( j = 0; j < destinationsLength; j++ ) {
+					route = this._calculateShortestPath( this._graph, sources[i], destinations[j], true );
+					if ( result.cost > route.cost ) {
+						result = route;
 					}
 				}
 			}
+
+			return result.path;
 		},
 
-		dishighlight: function ( path ) {
-			var i, j,
-				svgDoc = this._svg,
-				stations = this._stations,
-				stationList = this._stationList;
+		highlight: function ( target ) {
+			var i, view, targetLength;
 
-			if ( !svgDoc ) {
+			if ( !this._svg || !target ) {
+				return;
+			}
+			view = this.element;
+			targetLength = target.length;
+
+			for ( i = 0; i < targetLength; i++ ) {
+				this._addClassSVG( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
+			}
+		},
+
+		dishighlight: function ( target ) {
+			var i, view, targetLength;
+
+			if ( !this._svg ) {
 				return;
 			}
 
-			if ( !path ) {
-				this._removeClassSVG( $( "circle" ), "ui-highlight" );
+			view = this.element;
+			if ( !target ) {
+				this._removeClassSVG( view.find( ".ui-shape, .ui-line" ), "ui-highlight" );
 				return;
 			}
 
-			for ( i = 0; i < path.length; i++ ) {
-				for ( j = 0; j < stations.length; j += 1 ) {
-					if ( stations[j].label === stationList[path[i]] ) {
-						this._removeClassSVG( $( ".ui-id-" + stations[j].id ), "ui-highlight" );
-						break;
-					}
-				}
+			targetLength = target.length;
+			for ( i = 0; i < targetLength; i++ ) {
+				this._removeClassSVG( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
 			}
 		},
 
 		refresh: function ( redraw ) {
-			var view, svgContainer;
+			var view, routemapContainer;
 
 			view = this.element;
-			svgContainer = view.find( "ui-routemap-container" );
+			routemapContainer = view.find( "ui-routemap-container" );
 
-			if ( svgContainer.width() !== view.width() ) {
-				svgContainer.width( view.width() );
+			if ( routemapContainer.width() !== view.width() ) {
+				routemapContainer.width( view.width() );
 			}
 
 			if ( redraw ) {
 				this._clear();
 				this._drawLines();
 				this._drawElements();
+				this._drawLegend();
 			}
 		}
-	} );
-
-	//auto self-init widgets
-	$.mobile.document.on( "pagecreate create", function ( e ) {
-		$.mobile.routemap.prototype.enhanceWithin( e.target );
 	} );
 
 	$.mobile.window.on( "pagechange", function () {
 		$( ".ui-page-active .ui-routemap" ).routemap( "refresh", true );
 	} ).on( "resize", function () {
 		$( ".ui-page-active .ui-routemap" ).routemap( "refresh" );
+	} );
+
+	//auto self-init widgets
+	$.mobile.document.on( "pagecreate create", function ( e ) {
+		$.mobile.routemap.prototype.enhanceWithin( e.target );
 	} );
 
 } ( jQuery, this ) );

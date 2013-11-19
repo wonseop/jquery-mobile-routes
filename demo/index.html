@@ -2,137 +2,103 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
-	<title>jQuery Mobile Routemap demo</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Routemap Demo - Web UI Framework Demos</title>
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
 	<script src="../lib/iscroll.js"></script>
 
 	<link rel="stylesheet" href="../css/jquery.mobile.routemap.css" />
-	<style>
-		.ui-station-selected {
-			stroke: #909;
-			stroke-width: 10;
-			fill: #f6f;
-		}
-
-		.ui-line-selected {
-			stroke: #909;
-			stroke-width: 10;
-		}
-	</style>
 	<script src="../src/jquery.mobile.routemap.js"></script>
+</head>
+<body>
+	<div data-role="page" id="routemap" data-dom-cache="true">
+		<div data-role="header" data-position="fixed">
+			<h1>Routemap Demo - Web UI Framework Demos</h1>
+			<a href="../../" data-icon="home" data-iconpos="notext" data-ajax="false">Home</a>
+		</div> <!--/header -->
+		<div data-role="content">
+			<div class="content-primary">
+				<h3>Routemap</h3>
+				<div data-demo-html="true" data-demo-js="true">
+					<div id="routemapTest"
+						data-role="routemap"
+						data-db="routemap_data.json"
+						data-unit="60">
+					</div>
+					<ul data-role="listview" data-inset="true">
+						<li><a id='shortestWay'>shortestWay : station21 > station7</a></li>
+						<li><a id='minimumTransfers'>minimumTransfers : station21 > station7</a></li>
+						<li><a id='clearWay'>Clear</a></li>
+						<li><a id='getNameById' href='#routePopup' data-rel='popup' data-position-to='window'>getNameById : "5"</a></li>
+						<li><a id='getIdsByName' href='#routePopup' data-rel='popup' data-position-to='window'>getIdsByName : "station5(ex)"</a></li>
+						<li><a id='highlight'>highlight : station3 > station45 </a></li>
+						<li><a id='dishighlight'>dishighlight : station3 > station45 </a></li>
+					</ul>
+					<div id="routePopup" data-role="popup" style="width:300px">
+						<div data-role="header">
+							<h1>Result</h1>
+						</div>
+						<div data-role="content">
+							<p class="ui-popup-text">message</p>
+							<center>
+								<div>
+									<a data-role="button" data-rel="back" data-inline="true">OK</a>
+								</div>
+							</center>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> <!--/content -->
+	</div>
 	<script>
-		var resizeContent = function ( page ) {
-			var content = page.find('.ui-content'),
-				paddings = parseInt( content.css( 'padding-top' ), 10 ) + parseInt( content.css( 'padding-bottom' ), 10 ),
-				borders = parseInt( content.css( 'border-top-width' ), 10 ) + parseInt( content.css( 'border-bottom-width' ), 10 ),
-				windowHeight =  $( window ).height(),
-				sectionsHeight = 0;
-
-			page.find( '.ui-footer, .ui-header' ).each( function () {
-				sectionsHeight += $( this ).outerHeight();
-			});
-
-			content.height( windowHeight - sectionsHeight - paddings - borders );
-		},
-		widget;
-
 		$( document ).on( "routemapcreate", function ( e ) {
-			var scroller = new window.iScroll( e.target, { hScrollbar: false, vScrollbar: false, zoom: true } );
+			var widget = $( "#routemapTest" ),
+				startId = widget.routemap( "getIdsByName", "station21" )[0],
+				endId = widget.routemap( "getIdsByName", "station7(ex)" )[0],
+				$popup = $( "#routePopup .ui-popup-text"),
+				path;
 
-			widget = $( "#routemapTest" );
+			widget.on( "select", function( e, id ) {
+				widget.routemap( "dishighlight" );
 
-			$( window ).on( "pageshow resize throttledresize", function () {
-				var siblingsHeight = 0;
-				resizeContent( $( ".ui-page-active" ) );
-
-				widget.siblings().each( function () {
-					siblingsHeight += $( this ).outerHeight( true );
-				});
-
-				widget.height( widget.parent().height() - siblingsHeight );
-				scroller.refresh();
-			});
-
-			$( "#languagueSelection input[type='radio']" ).on( "change", function ( e ) {
-				widget.routemap( "option", "language", e.target.value );
-				widget.routemap( "refresh", true );
+				if ( id ) {
+					widget.routemap( "highlight", [id] );
+				}
 			});
 
 			$( "#shortestWay" ).on( "vclick", function () {
-				var startCode = widget.routemap( "getIdByName", '신갈' ),
-					endCode = widget.routemap( "getIdByName", '구로' ),
-					path;
+				path = widget.routemap( "shortestRoute", startId, endId );
+				widget.routemap( "dishighlight" ).routemap( "highlight", path );
+			});
 
-				path = widget.routemap( "shortestRoute", startCode, endCode );
-
-				widget.routemap( "highlight", path );
+			$( "#minimumTransfers" ).on( "vclick", function () {
+				path = widget.routemap( "minimumTransfers", startId, endId );
+				widget.routemap( "dishighlight" ).routemap( "highlight", path );
 			});
 
 			$( "#clearWay" ).on( "vclick", function () {
 				widget.routemap( "dishighlight" );
 			});
 
-			//////////////////// for widget function test codes //////////////////////
-			$("#routemapTest").on( "select", function( e, id ) {
-				var path, target = e.target;
+			$( "#getIdsByName" ).on( "vclick", function () {
+				$popup.text( "getIdsByName : " + widget.routemap( "getIdsByName", "station5(ex)" ) );
+			});
 
-				if ( target.classList.contains( "ui-station" ) ) {
-					widget.find( ".ui-station" ).each( function () {
-						this.classList.remove( "ui-station-selected" );
-					} );
+			$( "#getNameById" ).on( "vclick", function () {
+				$popup.text( "getNameById : " + widget.routemap( "getNameById", "5" ) );
+			});
 
-					target.classList.add( "ui-station-selected" );
-				} else if ( target.classList.contains( "ui-line" ) ) {
-					widget.find( ".ui-line" ).each( function () {
-						this.classList.remove( "ui-line-selected" );
-					} );
+			$( "#highlight" ).on( "vclick", function () {
+				widget.routemap( "highlight", ["3", "4", "33", "44", "45" ] );
+			});
 
-					widget.find( ".ui-id-" + id ).each( function () {
-						this.classList.add( "ui-line-selected" );
-					} );
-				}
+			$( "#dishighlight" ).on( "vclick", function () {
+				widget.routemap( "dishighlight", ["3", "4", "33", "44", "45" ] );
 			});
 		});
 	</script>
-</head>
-<body>
-
-	<div data-role="page">
-		<div data-role="header" data-position="fixed">
-			<h1>jQuery Mobile Routemap</h1>
-		</div><!-- /header -->
-
-		<div data-role="content">
-			<div id="routemapTest"
-				data-role="routemap"
-				data-db="../data/seoul_metro.json"
-				data-unit="2">
-			</div>
-
-			<div data-role="fieldcontain" id="languagueSelection">
-				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
-					<legend>Language:</legend>
-					<input type="radio" data-theme="a" name="radio-lang" id="radio-lang-ko" value="" checked="checked">
-					<label for="radio-lang-ko">Default(Korean)</label>
-					<input type="radio" data-theme="a" name="radio-lang" id="radio-lang-en" value="en">
-					<label for="radio-lang-en">English</label>
-				</fieldset>
-				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
-					<legend>Shortest way:</legend>
-					<button id="shortestWay">Singal > Guro</button>
-					<button id="clearWay">Clear</button>
-				</fieldset>
-			</div>
-
-		</div><!-- /content -->
-
-		<div data-role="footer" data-position="fixed">
-			<h4>&copy; 2013 Wonseop Kim</h4>
-		</div><!-- /footer -->
-	</div><!-- /page -->
-
 </body>
 </html>
