@@ -69,10 +69,14 @@
 			routemapContainer.on( "vclick", function ( event ) {
 				var target = $( event.target ),
 					targetId,
-					classList = target[0].classList;
-				if ( classList.contains( "ui-shape" ) || classList.contains( "ui-label" ) ) {
-					targetId = regId.exec( target.attr( "class" ) );
-				} else if ( classList.contains( "ui-line" ) ) {
+					classList = target[0].classList,
+					namespaceURI = target[0].namespaceURI;
+				
+				if ( namespaceURI.indexOf("svg") > -1 ){
+					if ( classList.contains( "ui-line" ) ) { // todo : IE
+						targetId = regId.exec( target.attr( "class" ) );
+					}
+				} else if ( target.hasClass( "ui-shape" ) || target.hasClass( "ui-label" ) ) {
 					targetId = regId.exec( target.attr( "class" ) );
 				}
 				target.trigger( "select", targetId ? targetId[1] : undefined );
