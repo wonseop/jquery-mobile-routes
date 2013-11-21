@@ -2,11 +2,11 @@
 	-webkit-animation: uiline 0.8s infinite;
 	animation: uiline 0.8s infinite;
 }
-.ui-routemap .ui-highlight.ui-shape {
+.ui-routemap .ui-highlight .ui-shape {
 	-webkit-animation: uistation 0.6s infinite;
 	animation: uistation 0.6s infinite;
 }
-.ui-routemap .ui-highlight.ui-label {
+.ui-routemap .ui-highlight .ui-label {
 	font-size: 1rem;
 }
 .ui-routemap .ui-shape {
@@ -18,14 +18,12 @@
 	-webkit-border-radius:50%;
 	width: 4px;
 }
-.ui-routemap .ui-shape.ui-transfer {
-	position: absolute;
-	background-color: white;
-	border: 2px solid;
-	border-radius: 50%;
-	-moz-border-radius:50%;
-	-webkit-border-radius:50%;
+.ui-routemap .ui-transfer .ui-shape {
 	width: 6px;
+}
+.ui-routemap .ui-label {
+	position: absolute;
+	font-size: 0.75rem;
 }
 
 @-webkit-keyframes uistation {
