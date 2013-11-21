@@ -9,13 +9,13 @@
 			exchangeRadius: 6,
 			exchangeStyle: {
 				fill: "white",
-				stroke: "gray",
+				color: "gray",
 				strokeWidth: 2
 			},
 			stationRadius: 4,
 			stationStyle: {
 				fill: "white",
-				stroke: "black",
+				color: "black",
 				strokeWidth: 1
 			},
 			lineStyle: {
@@ -71,13 +71,13 @@
 					targetId,
 					classList = target[0].classList,
 					namespaceURI = target[0].namespaceURI;
-				
+
 				if ( namespaceURI.indexOf("svg") > -1 ){
 					if ( classList.contains( "ui-line" ) ) { // todo : IE
 						targetId = regId.exec( target.attr( "class" ) );
 					}
 				} else if ( target.hasClass( "ui-shape" ) || target.hasClass( "ui-label" ) ) {
-					targetId = regId.exec( target.attr( "class" ) );
+					targetId = regId.exec( target.parent().attr( "class" ) );
 				}
 				target.trigger( "select", targetId ? targetId[1] : undefined );
 			} );
@@ -315,98 +315,98 @@
 				stationRadius,
 				stations = this._stations,
 				station,
-				// stationGroup,
 				label,
 				coordinates,
 				position,
-				// labelPosition = [0, 0],
-				// labelAngle = 0,
-				// textGroup,
-				// stationName,
-				// text,
+				labelPosition = [0, 0],
+				labelAngle = 0,
+				stationName,
 				classes,
 				stationborder,
+				top, left,
+				$stationGroup,
 				$stationCircle,
+				$textSpan,
 				$routemapContainer = this.element.find( ".ui-routemap-container" ),
-				$stationsDiv = $( document.createElement( "div" ) )
-					.appendTo( $routemapContainer )
-					.addClass("ui-stations");
+				parentPos = $routemapContainer.position(),
+				$stationsDiv = this._element( $routemapContainer, "div", {
+					"class" : "ui-stations"
+				} );
 
 			for ( i = 0; i < stations.length; i += 1 ) {
 				station = stations[i];
 				label = station.label;
 				coordinates = station.coordinates;
 				position = [unit * coordinates[0], unit * coordinates[1] ];
+				top = position[1] + parentPos.top;
+				left = position[0] + parentPos.left;
 
-				classes = "ui-shape ui-id-" + station.id;
+				classes = "ui-station ui-id-" + station.id;
 				if ( station.transfer.length ) {
 					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-transfer";
 				}
-				$stationCircle = $( document.createElement( "div" ) )
-					.appendTo( $stationsDiv )
-					.addClass( classes );
+ 
+				$stationGroup = this._element( $stationsDiv, "g", {
+					"class" : classes
+				});
+
+				$stationCircle = this._element( $stationGroup, "div", {
+					"class" : "ui-shape"
+				});
 
 				stationborder = $stationCircle.outerWidth(true) - $stationCircle.innerWidth();
 				stationRadius = $stationCircle.width();
 
 				$stationCircle.css( {
-					"top" : position[1] + $routemapContainer.position().top - stationRadius - stationborder/2,
-					"left" : position[0] + $routemapContainer.position().left - stationRadius - stationborder/2,
+					"top" : top - stationRadius - stationborder / 2,
+					"left" : left - stationRadius - stationborder / 2,
 					width : stationRadius * 2,
 					height : stationRadius * 2,
-					"border-color" : station.style.stroke
+					"border-color" : station.style.color
 				} );
-				// stationGroup = this._node( null, "g", {
-				// 	"class": classes
-				// } );
-				// // draw station
 
-				// this._node( stationGroup, "circle", {
-				// 	"class": "ui-shape",
-				// 	cx: position[0],
-				// 	cy: position[1],
-				// 	r: stationRadius
-				// }, station.style );
-				// textGroup = this._node( stationGroup, "g" );
-				// labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
+				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
+				stationName = this._languageData ? ( this._languageData[label] || label ) : label;
 
-				// // draw station name
-				// stationName = this._languageData ?
-				// 	( this._languageData[label] || label ) :
-				// 		label;
+				$textSpan = this._element( $stationGroup, "span", {
+					"class": "ui-label"
+				} );
+				$textSpan.text( stationName || "?");
+				top -= $textSpan.outerHeight(true) / 2 ;
 
-				// text = this._text( textGroup, stationName || "?", { "class": "ui-label" },
-				// 	{ transform: "rotate(" + labelAngle + ")", fontSize: station.font.fontSize || "9" }
-				// );
+				switch ( station.labelPosition || "s" ) {
+				case "w" :
+					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top ];
+					break;
+				case "nw" :
+					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top - $textSpan.outerHeight(true) ];
+					break;
+				case "sw" :
+					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top + $textSpan.outerHeight(true) ];
+					break;
+				case "e" :
+					labelPosition = [ left + stationRadius * 3 / 2, top ];
+					break;
+				case "ne" :
+					labelPosition = [ left + stationRadius * 3 / 2, top - $textSpan.outerHeight(true) ];
+					break;
+				case "se" :
+					labelPosition = [ left + stationRadius * 3 / 2, top + $textSpan.outerHeight(true) ];
+					break;
+				case "s" :
+					labelPosition = [ left - $textSpan.outerWidth(true) / 2, top + $textSpan.outerHeight(true) ];
+					break;
+				case "n" :
+					labelPosition = [ left - $textSpan.outerWidth(true) / 2, top - $textSpan.outerHeight(true) ];
+					break;
+				}
 
-				// switch ( station.labelPosition || "s" ) {
-				// case "w" :
-				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius / 2 ];
-				// 	break;
-				// case "e" :
-				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius / 2 ];
-				// 	break;
-				// case "s" :
-				// 	labelPosition = [ position[0] - text.getBBox().width / 2, position[1] + stationRadius + text.getBBox().height ];
-				// 	break;
-				// case "n" :
-				// 	labelPosition = [ position[0] - text.getBBox().width / 2, position[1] - stationRadius - text.getBBox().height / 3 ];
-				// 	break;
-				// case "nw" :
-				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] - stationRadius / 2 - text.getBBox().height / 3  ];
-				// 	break;
-				// case "ne" :
-				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] - stationRadius / 2 - text.getBBox().height / 3 ];
-				// 	break;
-				// case "sw" :
-				// 	labelPosition = [ position[0] - stationRadius * 3 / 2 - text.getBBox().width, position[1] + stationRadius + text.getBBox().height / 2  ];
-				// 	break;
-				// case "se" :
-				// 	labelPosition = [ position[0] + stationRadius * 3 / 2, position[1] + stationRadius + text.getBBox().height / 2 ];
-				// 	break;
-				// }
-
-				// textGroup.setAttribute( "transform", "translate(" + labelPosition[0] + "," + labelPosition[1] + ")" );
+				$textSpan.css( {
+					"top" : labelPosition[1],
+					"left" : labelPosition[0],
+					"transform-origin" : "0% 50%",
+					"transform" : "rotate( " + labelAngle + "deg )"
+				});
 			}
 		},
 
@@ -431,24 +431,19 @@
 			return node;
 		},
 
-		_text:  function ( parent, value, settings, style ) {
-			var node = this._node( parent, "text", settings, style ),
-				texts, i;
+		_element: function ( parent, name, settings, style ) {
+			var $element, key, value,
+				attributes = $.extend( settings, style || {} );
 
-			if ( typeof value !== "string" ) {
-				value = "";
+			$element = $( document.createElement( name ) ).appendTo( parent );
+
+			for ( key in attributes ) {
+				value = attributes[key];
+				if ( value && ( typeof value !== "string" || value !== "" ) ) {
+					$element.attr( key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase(), value);
+				}
 			}
-
-			texts = value.split( "\n" );
-
-			for ( i = 0; i < texts.length; i += 1 ) {
-				this._node( node, "tspan", {
-					x: "0",
-					y: ( settings.fontSize * i )
-				}, {} ).appendChild( node.ownerDocument.createTextNode( texts[i] ) );
-			}
-
-			return node;
+			return $element;
 		},
 
 		_addClassSVG: function ( element, className ) {
@@ -626,7 +621,7 @@
 
 			view = this.element;
 			if ( !target ) {
-				this._removeClassSVG( view.find( ".ui-shape, .ui-line" ), "ui-highlight" );
+				this._removeClassSVG( view.find( ".ui-station, .ui-line" ), "ui-highlight" );
 				return;
 			}
 

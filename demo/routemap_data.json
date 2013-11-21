@@ -2,14 +2,14 @@
 	"name": "Example Route Map",
 	"exchangeStyle": {
 		"fill": "white",
-		"stroke": "gray"
+		"color": "gray"
 	},
 	"lines": [{
 		"id": "line1",
 		"name": "Line 1",
 		"style": {
 			"line" : { "stroke": "blue" },
-			"station": { "stroke": "blue" }
+			"station": { "color": "blue" }
 		},
 		"branches": [
 			[
@@ -28,7 +28,7 @@
 		"name": "Line 2",
 		"style": {
 			"line" : { "stroke": "red" },
-			"station": { "stroke": "red" }
+			"station": { "color": "red" }
 		},
 		"branches": [
 			[
@@ -48,7 +48,7 @@
 		"name": "Line 3",
 		"style": {
 			"line" : { "stroke": "green" },
-			"station": { "stroke": "green" }
+			"station": { "color": "green" }
 		},
 		"branches": [
 			[
@@ -65,7 +65,7 @@
 		"name": "Line 4",
 		"style": {
 			"line" : { "stroke": "orange" },
-			"station": { "stroke": "orange" }
+			"station": { "color": "orange" }
 		},
 		"branches": [
 			[
