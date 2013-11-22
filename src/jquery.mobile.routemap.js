@@ -1,28 +1,9 @@
 ( function ( $, window ) {
 	var document = window.document,
 		svgNameSpace = "http://www.w3.org/2000/svg",
-		// Default style for SVG elements.
 		DEFAULT_STYLE = {
-			font: {
-				fontSize: "12px"
-			},
 			exchangeRadius: 6,
-			exchangeStyle: {
-				fill: "white",
-				color: "gray",
-				strokeWidth: 2
-			},
-			stationRadius: 4,
-			stationStyle: {
-				fill: "white",
-				color: "black",
-				strokeWidth: 1
-			},
-			lineStyle: {
-				fill: "none",
-				stroke: "black",
-				strokeWidth: 3
-			}
+			stationRadius: 4
 		},
 		regId = new RegExp( "\\bui-id-([\\w-]+)\\b" );
 
@@ -69,11 +50,10 @@
 			routemapContainer.on( "vclick", function ( event ) {
 				var target = $( event.target ),
 					targetId,
-					classList = target[0].classList,
 					namespaceURI = target[0].namespaceURI;
 
 				if ( namespaceURI.indexOf("svg") > -1 ){
-					if ( classList.contains( "ui-line" ) ) { // todo : IE
+					if ( self._hasClassSVG( target, "ui-line" ) ) {
 						targetId = regId.exec( target.attr( "class" ) );
 					}
 				} else if ( target.hasClass( "ui-shape" ) || target.hasClass( "ui-label" ) ) {
@@ -81,6 +61,10 @@
 				}
 				target.trigger( "select", targetId ? targetId[1] : undefined );
 			} );
+		},
+
+		_hasClassSVG: function ( $elem, classes ) {
+			return new RegExp( "\\b" + classes + "\\b" ).test( $elem.attr( "class" ) );
 		},
 
 		_setOption: function ( key, value ) {
@@ -150,10 +134,8 @@
 				exchange,
 				stationStyle,
 				stationRadius = data.stationRadius || DEFAULT_STYLE.stationRadius,
-				stationFont = $.extend( {}, DEFAULT_STYLE.font, data.stationFont ),
-				exchangeStyle = $.extend( {}, DEFAULT_STYLE.exchangeStyle, data.exchangeStyle ),
+				exchangeStyle = data.exchangeStyle || {},
 				exchangeRadius = data.exchangeRadius || DEFAULT_STYLE.exchangeRadius,
-				exchangeFont = $.extend( {}, DEFAULT_STYLE.font, data.exchangeFont ),
 				lineStyle,
 				coord,
 				minX = 9999,
@@ -179,8 +161,8 @@
 
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].branches;
-				stationStyle = $.extend( {}, DEFAULT_STYLE.stationStyle, lines[i].style.station );
-				lineStyle = $.extend( {}, DEFAULT_STYLE.lineStyle, lines[i].style.line );
+				stationStyle = lines[i].style.station || {},
+				lineStyle = lines[i].style.line || {},
 				this._nameList[ lines[i].id ] = lines[i].name;
 
 				for ( j = 0; j < branches.length; j += 1 ) {
@@ -219,7 +201,6 @@
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
 							station.radius = stationRadius;
-							station.font = stationFont;
 							station.transfer = [];
 							this._stationsMap[coord[0]][coord[1]] = station;
 							this._stations.push( station );
@@ -228,7 +209,6 @@
 							if ( !exchange.transfer.length ) {
 								exchange.style = exchangeStyle;
 								exchange.radius = exchangeRadius;
-								exchange.font = exchangeFont;
 							}
 							exchange.transfer.push( station.id );
 							graph[station.id][exchange.id] = "TRANSPER";
@@ -303,7 +283,7 @@
 					this._node( group, "text", {
 						x : 25,
 						y : 13 + (i * 15)
-					}, { fontSize: DEFAULT_STYLE.font.fontSize || "0.75rem"} ).appendChild( group.ownerDocument.createTextNode( lineId ) );
+					} ).appendChild( group.ownerDocument.createTextNode( lineId ) );
 				}
 			}
 		},
@@ -323,15 +303,13 @@
 				stationName,
 				classes,
 				stationborder,
-				top, left,
+				top, left, key,
 				$stationGroup,
 				$stationCircle,
 				$textSpan,
 				$routemapContainer = this.element.find( ".ui-routemap-container" ),
 				parentPos = $routemapContainer.position(),
-				$stationsDiv = this._element( $routemapContainer, "div", {
-					"class" : "ui-stations"
-				} );
+				$stationsDiv = $( "<div class='ui-routemap-div'></div>" ).appendTo( $routemapContainer );
 
 			for ( i = 0; i < stations.length; i += 1 ) {
 				station = stations[i];
@@ -340,38 +318,29 @@
 				position = [unit * coordinates[0], unit * coordinates[1] ];
 				top = position[1] + parentPos.top;
 				left = position[0] + parentPos.left;
-
 				classes = "ui-station ui-id-" + station.id;
+				
 				if ( station.transfer.length ) {
-					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-transfer";
+					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
 				}
- 
-				$stationGroup = this._element( $stationsDiv, "g", {
-					"class" : classes
-				});
-
-				$stationCircle = this._element( $stationGroup, "div", {
-					"class" : "ui-shape"
-				});
-
+				$stationGroup = $( "<div></div>" ).appendTo( $stationsDiv ).addClass( classes );
+				$stationCircle = $( "<div class='ui-shape'></div>" ).appendTo( $stationGroup );
+				
+				if ( station.style ) {
+					for ( key in station.style ) {
+						$stationCircle.css( key, station.style[key] );
+					}
+				}
 				stationborder = $stationCircle.outerWidth(true) - $stationCircle.innerWidth();
-				stationRadius = $stationCircle.width();
-
+				stationRadius = $stationCircle.width() / 2;
 				$stationCircle.css( {
 					"top" : top - stationRadius - stationborder / 2,
-					"left" : left - stationRadius - stationborder / 2,
-					width : stationRadius * 2,
-					height : stationRadius * 2,
-					"border-color" : station.style.color
+					"left" : left - stationRadius - stationborder / 2
 				} );
 
 				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
 				stationName = this._languageData ? ( this._languageData[label] || label ) : label;
-
-				$textSpan = this._element( $stationGroup, "span", {
-					"class": "ui-label"
-				} );
-				$textSpan.text( stationName || "?");
+				$textSpan = $( "<span class='ui-label'>"+ stationName +"</span>" ).appendTo( $stationGroup );
 				top -= $textSpan.outerHeight(true) / 2 ;
 
 				switch ( station.labelPosition || "s" ) {
@@ -414,36 +383,29 @@
 		// SVG
 
 		_node: function ( parent, name, settings, style ) {
-			var node, key, value,
-				attributes = $.extend( settings, style || {} );
-
+			var node, key, value, string = "";
 			parent = parent || this._svg;
 			node = parent.ownerDocument.createElementNS( svgNameSpace, name );
+			settings = settings || {};
 
-			for ( key in attributes ) {
-				value = attributes[key];
+			for ( key in settings ) {
+				value = settings[key];
 				if ( value && ( typeof value !== "string" || value !== "" ) ) {
 					node.setAttribute( key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase(), value);
 				}
 			}
+			if ( style ) {
+				for ( key in style ) {
+					value = style[key];
+					if ( value && ( typeof value !== "string" || value !== "" ) ) {
+						string += key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase() + ":" + value + ";";
+					}
+				}
+				node.setAttribute( "style", string );
+			}
 
 			parent.appendChild( node );
 			return node;
-		},
-
-		_element: function ( parent, name, settings, style ) {
-			var $element, key, value,
-				attributes = $.extend( settings, style || {} );
-
-			$element = $( document.createElement( name ) ).appendTo( parent );
-
-			for ( key in attributes ) {
-				value = attributes[key];
-				if ( value && ( typeof value !== "string" || value !== "" ) ) {
-					$element.attr( key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase(), value);
-				}
-			}
-			return $element;
 		},
 
 		_addClassSVG: function ( element, className ) {
@@ -452,7 +414,6 @@
 			if ( classAttr.indexOf( className ) !== -1 ) {
 				return;
 			}
-
 			classAttr = classAttr + ( classAttr.length === 0 ? "" : " " ) + className;
 			element.attr( "class", classAttr );
 		},

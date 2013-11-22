@@ -1,3 +1,31 @@
+/* basic style*/
+.ui-routemap {
+	font-size: 0.77rem;
+}
+.ui-routemap .ui-line {
+	fill: none;
+	stroke-width: 3px;
+}
+.ui-routemap .ui-label {
+	position: absolute;
+}
+.ui-routemap .ui-shape {
+	position: absolute;
+	background-color: white;
+	border-color: black;
+	border: 2px solid;
+	width: 0.77rem;
+	height: 0.77rem;
+	border-radius: 50%;
+	-moz-border-radius:50%;
+	-webkit-border-radius:50%;
+}
+.ui-routemap .ui-exchange {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* highlight style */
 .ui-routemap .ui-line.ui-highlight {
 	-webkit-animation: uiline 0.8s infinite;
 	animation: uiline 0.8s infinite;
@@ -7,25 +35,10 @@
 	animation: uistation 0.6s infinite;
 }
 .ui-routemap .ui-highlight .ui-label {
-	font-size: 1rem;
-}
-.ui-routemap .ui-shape {
-	position: absolute;
-	background-color: white;
-	border: 2px solid;
-	border-radius: 50%;
-	-moz-border-radius:50%;
-	-webkit-border-radius:50%;
-	width: 4px;
-}
-.ui-routemap .ui-transfer .ui-shape {
-	width: 6px;
-}
-.ui-routemap .ui-label {
-	position: absolute;
-	font-size: 0.75rem;
+	font-size: 1.2rem;
 }
 
+/* highlight effect */
 @-webkit-keyframes uistation {
 	0% { box-shadow: 0px 0px 1px 1px gray; }
 	100% { box-shadow: 0px 0px 2px 3px blue; }
