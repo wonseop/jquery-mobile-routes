@@ -53,7 +53,7 @@
 					namespaceURI = target[0].namespaceURI;
 
 				if ( namespaceURI.indexOf("svg") > -1 ){
-					if ( self._hasClassSVG( target, "ui-line" ) ) {
+					if ( self._hasClass( target, "ui-line" ) ) {
 						targetId = regId.exec( target.attr( "class" ) );
 					}
 				} else if ( target.hasClass( "ui-shape" ) || target.hasClass( "ui-label" ) ) {
@@ -61,10 +61,6 @@
 				}
 				target.trigger( "select", targetId ? targetId[1] : undefined );
 			} );
-		},
-
-		_hasClassSVG: function ( $elem, classes ) {
-			return new RegExp( "\\b" + classes + "\\b" ).test( $elem.attr( "class" ) );
 		},
 
 		_setOption: function ( key, value ) {
@@ -305,7 +301,7 @@
 				labelPosition = [0, 0],
 				labelAngle = 0,
 				stationName,
-				classes,
+				className,
 				stationborder,
 				top, left, key,
 				$stationGroup,
@@ -322,12 +318,12 @@
 				position = [unit * coordinates[0], unit * coordinates[1] ];
 				top = position[1] + parentPos.top;
 				left = position[0] + parentPos.left;
-				classes = "ui-station ui-id-" + station.id;
+				className = "ui-station ui-id-" + station.id;
 				
 				if ( station.transfer.length ) {
-					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
+					className += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
 				}
-				$stationGroup = $( "<div></div>" ).appendTo( $stationsDiv ).addClass( classes );
+				$stationGroup = $( "<div></div>" ).appendTo( $stationsDiv ).addClass( className );
 				$stationCircle = $( "<div class='ui-shape'></div>" ).appendTo( $stationGroup );
 				
 				if ( station.style ) {
@@ -412,7 +408,11 @@
 			return node;
 		},
 
-		_addClassElem: function ( elements, className ) {
+		_hasClass: function ( elements, className ) {
+			return new RegExp( "\\b" + className + "\\b" ).test( elements.attr( "class" ) );
+		},
+
+		_addClass: function ( elements, className ) {
 			var element, classAttr;
 			$.each( elements, function () {
 				element = $( this );
@@ -429,7 +429,7 @@
 
 		},
 
-		_removeClassElem: function ( elements, className ) {
+		_removeClass: function ( elements, className ) {
 			var element, classAttr;
 			$.each( elements, function () {
 				element = $( this );
@@ -584,7 +584,7 @@
 			targetLength = target.length;
 
 			for ( i = 0; i < targetLength; i++ ) {
-				this._addClassElem( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
+				this._addClass( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
 			}
 		},
 
@@ -597,13 +597,13 @@
 
 			view = this.element;
 			if ( !target ) {
-				this._removeClassElem( view.find( ".ui-station, .ui-line" ), "ui-highlight" );
+				this._removeClass( view.find( ".ui-station, .ui-line" ), "ui-highlight" );
 				return;
 			}
 
 			targetLength = target.length;
 			for ( i = 0; i < targetLength; i++ ) {
-				this._removeClassElem( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
+				this._removeClass( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
 			}
 		},
 
