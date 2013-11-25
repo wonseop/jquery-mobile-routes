@@ -263,15 +263,14 @@
 			var i, lines = this._lines,
 				length = lines.length,
 				lineId = "",
-				$thisTxt,
 				y_weight,
+				labelHeight = this.element.find(".ui-label").outerHeight(true),
 				group = this._node( null, "g", { "class": "ui-legend"} );
 
 			for ( i = 0; i < length; i +=1 ) {
 				if ( lineId !== lines[i].id ) {
 					lineId = lines[i].id;
-					$thisTxt = this.element.find(".ui-legend text");
-					y_weight = $thisTxt.length * $thisTxt.height();
+					y_weight = $(".ui-routemap text").length * labelHeight;
 					this._node( group, "line", {
 						"class": "ui-line ui-id-" + lineId,
 						x1: 0,
@@ -403,7 +402,6 @@
 				}
 				node.setAttribute( "style", string );
 			}
-
 			parent.appendChild( node );
 			return node;
 		},
@@ -426,7 +424,6 @@
 				}
 				element.attr( "class", classAttr + " " + className );
 			} );
-
 		},
 
 		_removeClass: function ( elements, className ) {
@@ -440,7 +437,6 @@
 				classAttr = element.attr( "class" );
 				element.attr( "class", classAttr.replace( new RegExp( "\\s?" + className ), "" ) );
 			} );
-
 		},
 
 		// -------------------------------------------------
