@@ -27,8 +27,9 @@
 
 /* highlight style */
 .ui-routemap .ui-line.ui-highlight {
-	-webkit-animation: uiline 0.8s infinite;
-	animation: uiline 0.8s infinite;
+	/*-webkit-animation: uiline 0.8s infinite;
+	animation: uiline 0.8s infinite;*/
+	stroke-width: 5px;
 }
 .ui-routemap .ui-highlight .ui-shape {
 	-webkit-animation: uistation 0.6s infinite;

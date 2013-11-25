@@ -408,24 +408,38 @@
 			return node;
 		},
 
-		_addClassSVG: function ( element, className ) {
-			var classAttr = element.attr( "class" );
+		_addClassElem: function ( element, className ) {
+			$.each( element, function () {
+				var element = $( this ), classAttr;
 
-			if ( classAttr.indexOf( className ) !== -1 ) {
-				return;
-			}
-			classAttr = classAttr + ( classAttr.length === 0 ? "" : " " ) + className;
-			element.attr( "class", classAttr );
+				if ( element[0].namespaceURI.indexOf( "svg" ) === -1 ) {
+					element.addClass( className );
+					return true;
+				}
+
+				classAttr = element.attr( "class" );
+					if ( classAttr.indexOf( className ) !== -1 ) {
+					return true;
+				}
+
+				element.attr( "class", classAttr + " " + className );
+			} );
+
 		},
 
-		_removeClassSVG: function ( elements, className ) {
+		_removeClassElem: function ( elements, className ) {
 			$.each( elements, function () {
-				var element = $( this ),
-					classAttr = element.attr( "class" );
+				var element = $( this ), classAttr;
 
-				classAttr = classAttr.replace( new RegExp( "\\s?" + className ), "" );
-				element.attr( "class", classAttr );
+				if ( element[0].namespaceURI.indexOf( "svg" ) === -1 ) {
+					element.removeClass( className );
+					return true;
+				}
+
+				classAttr = element.attr( "class" );
+				element.attr( "class", classAttr.replace( new RegExp( "\\s?" + className ), "" ) );
 			} );
+
 		},
 
 		// -------------------------------------------------
@@ -569,7 +583,7 @@
 			targetLength = target.length;
 
 			for ( i = 0; i < targetLength; i++ ) {
-				this._addClassSVG( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
+				this._addClassElem( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
 			}
 		},
 
@@ -582,13 +596,13 @@
 
 			view = this.element;
 			if ( !target ) {
-				this._removeClassSVG( view.find( ".ui-station, .ui-line" ), "ui-highlight" );
+				this._removeClassElem( view.find( ".ui-station, .ui-line" ), "ui-highlight" );
 				return;
 			}
 
 			targetLength = target.length;
 			for ( i = 0; i < targetLength; i++ ) {
-				this._removeClassSVG( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
+				this._removeClassElem( view.find( ".ui-id-" + target[i] ), "ui-highlight" );
 			}
 		},
 
