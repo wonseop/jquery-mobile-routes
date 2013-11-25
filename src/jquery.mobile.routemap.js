@@ -408,34 +408,31 @@
 			return node;
 		},
 
-		_addClassElem: function ( element, className ) {
-			$.each( element, function () {
-				var element = $( this ), classAttr;
-
+		_addClassElem: function ( elements, className ) {
+			var element, classAttr;
+			$.each( elements, function () {
+				element = $( this );
 				if ( element[0].namespaceURI.indexOf( "svg" ) === -1 ) {
 					element.addClass( className );
 					return true;
 				}
-
 				classAttr = element.attr( "class" );
-					if ( classAttr.indexOf( className ) !== -1 ) {
+				if ( classAttr.indexOf( className ) !== -1 ) {
 					return true;
 				}
-
 				element.attr( "class", classAttr + " " + className );
 			} );
 
 		},
 
 		_removeClassElem: function ( elements, className ) {
+			var element, classAttr;
 			$.each( elements, function () {
-				var element = $( this ), classAttr;
-
+				element = $( this );
 				if ( element[0].namespaceURI.indexOf( "svg" ) === -1 ) {
 					element.removeClass( className );
 					return true;
 				}
-
 				classAttr = element.attr( "class" );
 				element.attr( "class", classAttr.replace( new RegExp( "\\s?" + className ), "" ) );
 			} );
