@@ -3,15 +3,19 @@
 	"exchangeStyle": {
 		"backgroundColor": "white",
 		"borderColor": "gray",
-		"width" : "1rem",
-		"height" :"1rem"
+		"width" : 16,
+		"height" : 16
 	},
 	"lines": [{
 		"id": "line1",
 		"name": "Line 1",
 		"style": {
 			"line" : { "stroke": "blue" },
-			"station": { "borderColor": "blue", "width" : "8", "height" : "8" }
+			"station": {
+				"borderColor": "blue",
+				"width" : 8,
+				"height" : 8
+			}
 		},
 		"branches": [
 			[
@@ -30,7 +34,11 @@
 		"name": "Line 2",
 		"style": {
 			"line" : { "stroke": "red" },
-			"station": { "borderColor": "red" , "width" : "8", "height" : "8" }
+			"station": {
+				"borderColor": "red",
+				"width" : 8,
+				"height" : 8
+			}
 		},
 		"branches": [
 			[
@@ -50,7 +58,11 @@
 		"name": "Line 3",
 		"style": {
 			"line" : { "stroke": "green" },
-			"station": { "borderColor": "green" , "width" : "8", "height" : "8" }
+			"station": {
+				"borderColor": "green",
+				"width" : 8,
+				"height" : 8
+			}
 		},
 		"branches": [
 			[
@@ -67,7 +79,11 @@
 		"name": "Line 4",
 		"style": {
 			"line" : { "stroke": "orange" },
-			"station": { "borderColor": "orange", "width" : "8", "height" : "8"  }
+			"station": {
+				"borderColor": "orange",
+				"width" : 8,
+				"height" : 8
+			}
 		},
 		"branches": [
 			[
@@ -82,6 +98,24 @@
 				{ "id": "47", "coordinates": [ 5, 4 ], "label": "44(ex)", "labelPosition": "ne", "labelAngle": 45 },
 				{ "id": "48", "coordinates": [ 5, 3 ], "label": "5(ex)", "labelPosition": "ne", "labelAngle": 45 },
 				{ "id": "49", "coordinates": [ 5, 1 ], "label": "47", "labelPosition": "ne", "labelAngle": 45 }
+			]
+		]
+	}, {
+		"id": "line5",
+		"name": "Line 5",
+		"style": {
+			"line" : { "stroke": "gray" },
+			"station": {
+				"borderColor": "gray",
+				"width" : 8,
+				"height" : 8
+			}
+		},
+		"branches": [
+			[
+				{ "id": "51", "coordinates": [ 10, 1 ], "label": "51", "labelPosition": "ne", "labelAngle": 45 },
+				{ "id": "52", "coordinates": [ 10, 2 ], "label": "52", "labelPosition": "ne", "labelAngle": 45 },
+				{ "id": "53", "coordinates": [ 10, 3 ], "label": "53", "labelPosition": "ne", "labelAngle": 45 }
 			]
 		]
 	}]

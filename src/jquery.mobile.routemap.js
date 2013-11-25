@@ -266,23 +266,27 @@
 		_drawLegend: function () {
 			var i, lines = this._lines,
 				length = lines.length,
-				lineId,
+				lineId = "",
+				$thisTxt,
+				y_weight,
 				group = this._node( null, "g", { "class": "ui-legend"} );
 
-			for ( i = 0; i < length; i += 1 ) {
+			for ( i = 0; i < length; i +=1 ) {
 				if ( lineId !== lines[i].id ) {
 					lineId = lines[i].id;
+					$thisTxt = this.element.find(".ui-legend text");
+					y_weight = $thisTxt.length * $thisTxt.height();
 					this._node( group, "line", {
 						"class": "ui-line ui-id-" + lineId,
 						x1: 0,
-						y1: 10 + (i * 15),
+						y1: 20 + y_weight,
 						x2: 20,
-						y2: 10 + (i * 15)
+						y2: 20 + y_weight
 					}, lines[i].style );
 
 					this._node( group, "text", {
-						x : 25,
-						y : 13 + (i * 15)
+						x : 23,
+						y : 23 + y_weight
 					} ).appendChild( group.ownerDocument.createTextNode( lineId ) );
 				}
 			}
