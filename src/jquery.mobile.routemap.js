@@ -51,7 +51,6 @@
 				var target = $( event.target ),
 					targetId,
 					namespaceURI = target[0].namespaceURI;
-
 				if ( namespaceURI.indexOf("svg") > -1 ){
 					if ( self._hasClass( target, "ui-line" ) ) {
 						targetId = regId.exec( target.attr( "class" ) );
@@ -262,6 +261,7 @@
 		_drawLegend: function () {
 			var i, lines = this._lines,
 				length = lines.length,
+				namelist = this._nameList,
 				lineId = "",
 				y_weight,
 				labelHeight = this.element.find(".ui-label").outerHeight(true),
@@ -282,7 +282,7 @@
 					this._node( group, "text", {
 						x : 23,
 						y : 23 + y_weight
-					} ).appendChild( group.ownerDocument.createTextNode( lineId ) );
+					} ).appendChild( group.ownerDocument.createTextNode( namelist[ lineId ] ) );
 				}
 			}
 		},

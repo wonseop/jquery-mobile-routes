@@ -2,18 +2,15 @@
 	"name": "수도권 지하철",
 	"exchangeStyle": {
 		"backgroundColor": "white",
-		"borderColor": "gray",
-		"width" : 8,
-		"height" : 8
+		"borderColor": "gray"
 	},
 	"lines": [{ 
 		"name": "1호선",
-		"id": "1호선",
+		"id": "line1",
 		"style": {
 			"line" : {
 				"fill": "none",
-				"stroke": "darkblue",
-				"strokeWidth": 3
+				"stroke": "darkblue"
 			},
 			"station": {
 				"backgroundColor": "white",
@@ -133,12 +130,11 @@
 		]
 	}, { 
 		"name": "2호선",
-		"id": "2호선",
+		"id": "line2",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "green",
-				"strokeWidth": 3
+				"stroke": "green"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -208,12 +204,11 @@
 		]
 	}, { 
 		"name": "3호선",
-		"id": "3호선",
+		"id": "line3",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "orangered",
-				"strokeWidth": 3
+				"stroke": "orangered"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -270,12 +265,11 @@
 		]
 	}, { 
 		"name": "4호선",
-		"id": "4호선",
+		"id": "line4",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "blue",
-				"strokeWidth": 3
+				"stroke": "blue"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -337,12 +331,11 @@
 		]
 	}, { 
 		"name": "5호선",
-		"id": "5호선",
+		"id": "line5",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "purple",
-				"strokeWidth": 3
+				"stroke": "purple"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -411,12 +404,11 @@
 		]
 	}, { 
 		"name": "6호선",
-		"id": "6호선",
+		"id": "line6",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "brown",
-				"strokeWidth": 3
+				"stroke": "brown"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -469,12 +461,11 @@
 		]
 	}, { 
 		"name": "7호선",
-		"id": "7호선",
+		"id": "line7",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "olive",
-				"strokeWidth": 3
+				"stroke": "olive"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -539,12 +530,11 @@
 		]
 	}, { 
 		"name": "8호선",
-		"id": "8호선",
+		"id": "line8",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "magenta",
-				"strokeWidth": 3
+				"stroke": "magenta"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -575,12 +565,11 @@
 		]
 	}, { 
 		"name": "9호선",
-		"id": "9호선",
+		"id": "line9",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "goldenrod",
-				"strokeWidth": 3
+				"stroke": "goldenrod"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -618,12 +607,11 @@
 		]
 	}, { 
 		"name": "의정부경전철",
-		"id": "의정부경전철",
+		"id": "lineUL",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "orange",
-				"strokeWidth": 3
+				"stroke": "orange"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -652,12 +640,11 @@
 		]
 	}, { 
 		"name": "수인선",
-		"id": "수인선",
+		"id": "lineSI",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "orange",
-				"strokeWidth": 3
+				"stroke": "orange"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -680,12 +667,11 @@
 		]
 	}, { 
 		"name": "중앙선",
-		"id": "중앙선",
+		"id": "lineC",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "teal",
-				"strokeWidth": 3
+				"stroke": "teal"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -727,12 +713,11 @@
 		]
 	}, { 
 		"name": "경춘선",
-		"id": "경춘선",
+		"id": "lineKC",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "turquoise",
-				"strokeWidth": 3
+				"stroke": "turquoise"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -765,12 +750,11 @@
 		]
 	}, { 
 		"name": "분당선",
-		"id": "분당선",
+		"id": "lineB",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "orange",
-				"strokeWidth": 3
+				"stroke": "orange"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -816,12 +800,11 @@
 		]
 	}, { 
 		"name": "경의선",
-		"id": "경의선",
+		"id": "lineKU",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "#39C0CF",
-				"strokeWidth": 3
+				"stroke": "#39C0CF"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -860,12 +843,11 @@
 		]
 	}, { 
 		"name": "신분당선",
-		"id": "신분당선",
+		"id": "lineSB",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "#9C0606",
-				"strokeWidth": 3
+				"stroke": "#9C0606"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -885,12 +867,11 @@
 		]
 	}, { 
 		"name": "공항철도",
-		"id": "공항철도",
+		"id": "lineAir",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "#3399CC",
-				"strokeWidth": 3
+				"stroke": "#3399CC"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -914,12 +895,11 @@
 		]
 	}, { 
 		"name": "인천1호선",
-		"id": "인천1호선",
+		"id": "lineI1",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "#336C9F",
-				"strokeWidth": 3
+				"stroke": "#336C9F"
 			},
 			"station" : {
 				"backgroundColor": "white",
@@ -962,12 +942,11 @@
 		]
 	}, { 
 		"name": "에버라인",
-		"id": "에버라인",
+		"id": "lineEv",
 		"style" : {
 			"line" : {
 				"fill": "none",
-				"stroke": "#00CC00",
-				"strokeWidth": 3
+				"stroke": "#00CC00"
 			},
 			"station" : {
 				"backgroundColor": "white",

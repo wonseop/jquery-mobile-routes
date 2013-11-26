@@ -14,15 +14,15 @@
 	background-color: white;
 	border-color: black;
 	border: 2px solid;
-	width: 0.77rem;
-	height: 0.77rem;
+	width: 0.375rem;
+	height: 0.375rem;
 	border-radius: 50%;
 	-moz-border-radius:50%;
 	-webkit-border-radius:50%;
 }
-.ui-routemap .ui-exchange {
-	width: 1rem;
-	height: 1rem;
+.ui-routemap .ui-exchange .ui-shape{
+	width: 0.5rem;
+	height: 0.5rem;
 }
 
 /* highlight style */
@@ -36,6 +36,7 @@
 	animation: uistation 0.6s infinite;
 }
 .ui-routemap .ui-highlight .ui-label {
+	font-weight: bold;
 	font-size: 1.2rem;
 }
 

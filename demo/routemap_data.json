@@ -3,8 +3,8 @@
 	"exchangeStyle": {
 		"backgroundColor": "white",
 		"borderColor": "gray",
-		"width" : 16,
-		"height" : 16
+		"width" : 12,
+		"height" : 12
 	},
 	"lines": [{
 		"id": "line1",
