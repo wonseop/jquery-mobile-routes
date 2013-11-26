@@ -307,7 +307,6 @@
 				$stationCircle,
 				$textSpan,
 				$routemapContainer = this.element.find( ".ui-routemap-container" ),
-				parentPos = $routemapContainer.position(),
 				$stationsDiv = $( "<div class='ui-routemap-div'></div>" ).appendTo( $routemapContainer );
 
 			for ( i = 0; i < stations.length; i += 1 ) {
@@ -315,8 +314,6 @@
 				label = station.label;
 				coordinates = station.coordinates;
 				position = [unit * coordinates[0], unit * coordinates[1] ];
-				top = position[1] + parentPos.top;
-				left = position[0] + parentPos.left;
 				className = "ui-station ui-id-" + station.id;
 				
 				if ( station.transfer.length ) {
@@ -332,6 +329,8 @@
 				}
 				stationborder = $stationCircle.outerWidth(true) - $stationCircle.innerWidth();
 				stationRadius = $stationCircle.width() / 2;
+				top = position[1];
+				left = position[0];
 				$stationCircle.css( {
 					"top" : top - stationRadius - stationborder / 2,
 					"left" : left - stationRadius - stationborder / 2

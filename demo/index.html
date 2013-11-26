@@ -18,48 +18,76 @@
 			<h1>Routemap Demo - Web UI Framework Demos</h1>
 			<a href="../../" data-icon="home" data-iconpos="notext" data-ajax="false">Home</a>
 		</div> <!--/header -->
+
 		<div data-role="content">
-			<div class="content-primary">
-				<h3>Routemap</h3>
-				<div data-demo-html="true" data-demo-js="true">
-					<div id="routemapTest"
-						data-role="routemap"
-						data-db="routemap_data.json"
-						data-unit="60">
+			<div id="routemapTest"
+				data-role="routemap"
+				data-db="routemap_data.json"
+				data-unit="60">
+			</div>
+			<div>
+				<ul data-role="listview" data-inset="true" position="relative">
+					<li><a id='shortestWay'>shortestWay : 21 > 7(ex)</a></li>
+					<li><a id='minimumTransfers'>minimumTransfers : 21 > 7(ex)</a></li>
+					<li><a id='clearWay'>Clear</a></li>
+					<li><a id='getNameById' href='#routePopup' data-rel='popup' data-position-to='window'>getNameById : "5"</a></li>
+					<li><a id='getIdsByName' href='#routePopup' data-rel='popup' data-position-to='window'>getIdsByName : "5(ex)"</a></li>
+					<li><a id='highlight'>highlight : 3 > 45 </a></li>
+					<li><a id='dishighlight'>dishighlight : 3 > 45 </a></li>
+				</ul>
+				<div id="routePopup" data-role="popup" style="height:200px">
+					<div data-role="header">
+						<h1>Result</h1>
 					</div>
-					<ul data-role="listview" data-inset="true" position="relative">
-						<li><a id='shortestWay'>shortestWay : 21 > 7(ex)</a></li>
-						<li><a id='minimumTransfers'>minimumTransfers : 21 > 7(ex)</a></li>
-						<li><a id='clearWay'>Clear</a></li>
-						<li><a id='getNameById' href='#routePopup' data-rel='popup' data-position-to='window'>getNameById : "5"</a></li>
-						<li><a id='getIdsByName' href='#routePopup' data-rel='popup' data-position-to='window'>getIdsByName : "5(ex)"</a></li>
-						<li><a id='highlight'>highlight : 3 > 45 </a></li>
-						<li><a id='dishighlight'>dishighlight : 3 > 45 </a></li>
-					</ul>
-					<div id="routePopup" data-role="popup" style="width:300px">
-						<div data-role="header">
-							<h1>Result</h1>
-						</div>
-						<div data-role="content">
-							<p class="ui-popup-text">message</p>
-							<center>
-								<div>
-									<a data-role="button" data-rel="back" data-inline="true">OK</a>
-								</div>
-							</center>
-						</div>
+					<div data-role="content">
+						<p class="ui-popup-text">message</p>
+						<center>
+							<div>
+								<a data-role="button" data-rel="back" data-inline="true">OK</a>
+							</div>
+						</center>
 					</div>
 				</div>
 			</div>
 		</div> <!--/content -->
+	<div data-role="footer" data-position="fixed">
+			<h4>Routemap</h4>
+		</div><!-- /footer -->
 	</div>
 	<script>
+		var resizeContent = function ( page ) {
+			var content = page.find('.ui-content'),
+				paddings = parseInt( content.css( 'padding-top' ), 10 ) + parseInt( content.css( 'padding-bottom' ), 10 ),
+				borders = parseInt( content.css( 'border-top-width' ), 10 ) + parseInt( content.css( 'border-bottom-width' ), 10 ),
+				windowHeight =  $( window ).height(),
+				sectionsHeight = 0;
+
+			page.find( '.ui-footer, .ui-header' ).each( function () {
+				sectionsHeight += $( this ).outerHeight();
+			});
+
+			content.height( windowHeight - sectionsHeight - paddings - borders );
+		};
+
 		$( document ).on( "routemapcreate", function ( e ) {
-			var widget = $( "#routemapTest" ),
+			var scroller = new window.iScroll( e.target, { hScrollbar: false, vScrollbar: false, zoom: true } ),
+				widget = $( "#routemapTest" ),
 				startId = widget.routemap( "getIdsByName", "21" )[0],
 				endId = widget.routemap( "getIdsByName", "7(ex)" )[0],
 				$popup = $( "#routePopup .ui-popup-text"),
 				path;
+
+			$( window ).on( "pageshow resize throttledresize", function () {
+				var siblingsHeight = 0;
+				resizeContent( $( ".ui-page-active" ) );
+
+				widget.siblings().each( function () {
+					siblingsHeight += $( this ).outerHeight( true );
+				});
+
+				widget.height( widget.parent().height() - siblingsHeight );
+				scroller.refresh();
+			});
 
 			widget.on( "select", function( e, id ) {
 				widget.routemap( "dishighlight" );
