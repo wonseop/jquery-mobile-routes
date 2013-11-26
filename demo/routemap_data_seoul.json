@@ -4,7 +4,7 @@
 		"backgroundColor": "white",
 		"borderColor": "gray"
 	},
-	"lines": [{ 
+	"lines": [{
 		"name": "1호선",
 		"id": "line1",
 		"style": {
@@ -83,7 +83,7 @@
 				{ "id": "158", "coordinates": [ 114, 606 ], "label": "제물포", "labelPosition": "sw" },
 				{ "id": "159", "coordinates": [ 126, 617 ], "label": "도원", "labelPosition": "sw" },
 				{ "id": "160", "coordinates": [ 137, 628 ], "label": "동인천", "labelPosition": "sw" },
-				{ "id": "161", "coordinates": [ 161, 640 ], "label": "인천", "labelPosition": "n" } 
+				{ "id": "161", "coordinates": [ 161, 640 ], "label": "인천", "labelPosition": "n" }
 			],[
 				{ "id": "141", "coordinates": [ 129, 347 ], "label": "구로", "labelPosition": "e" },
 				{ "id": "P142", "coordinates": [ 129, 384 ], "label": "가산디지털단지", "labelPosition": "e" },
@@ -128,7 +128,7 @@
 				{ "id": "P157-1", "coordinates": [ 355, 510 ], "label": "서동탄", "labelPosition": "e" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "2호선",
 		"id": "line2",
 		"style" : {
@@ -202,7 +202,7 @@
 				{ "id": "211", "coordinates": [ 532, 246 ], "label": "성수", "labelPosition": "w" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "3호선",
 		"id": "line3",
 		"style" : {
@@ -263,7 +263,7 @@
 				{ "id": "352", "coordinates": [ 627, 346 ], "label": "오금", "labelPosition": "e" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "4호선",
 		"id": "line4",
 		"style" : {
@@ -329,7 +329,7 @@
 				{ "id": "456", "coordinates": [ 456, 547 ], "label": "오이도", "labelPosition": "n" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "5호선",
 		"id": "line5",
 		"style" : {
@@ -402,7 +402,7 @@
 				{ "id": "553", "coordinates": [ 669, 359 ], "label": "상일동", "labelPosition": "w" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "6호선",
 		"id": "line6",
 		"style" : {
@@ -459,7 +459,7 @@
 				{ "id": "610", "coordinates": [ 203, 103 ], "label": "응암", "labelPosition": "nw" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "7호선",
 		"id": "line7",
 		"style" : {
@@ -528,7 +528,7 @@
 				{ "id": "759", "coordinates": [ 41,506 ], "label": "부평구청", "labelPosition": "sw" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "8호선",
 		"id": "line8",
 		"style" : {
@@ -563,7 +563,7 @@
 				{ "id": "826", "coordinates": [ 669,441 ], "label": "모란", "labelPosition": "e" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "9호선",
 		"id": "line9",
 		"style" : {
@@ -605,7 +605,7 @@
 				{ "id": "925", "coordinates": [ 467,360 ], "label": "신논현", "labelPosition": "n" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "의정부경전철",
 		"id": "lineUL",
 		"style" : {
@@ -638,7 +638,7 @@
 				{ "id": "U125", "coordinates": [ 714,139 ], "label": "탑석", "labelPosition": "w" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "수인선",
 		"id": "lineSI",
 		"style" : {
@@ -665,7 +665,7 @@
 				{ "id": "K259", "coordinates": [ 337,641 ], "label": "송도", "labelPosition": "s" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "중앙선",
 		"id": "lineC",
 		"style" : {
@@ -711,7 +711,7 @@
 				{ "id": "K137", "coordinates": [ 683,363 ], "label": "용문", "labelPosition": "e" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "경춘선",
 		"id": "lineKC",
 		"style" : {
@@ -748,7 +748,7 @@
 				{ "id": "P140", "coordinates": [ 716,373 ], "label": "춘천", "labelPosition": "e" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "분당선",
 		"id": "lineB",
 		"style" : {
@@ -798,7 +798,7 @@
 				{ "id": "K241", "coordinates": [ 361,480 ], "label": "망포", "labelPosition": "n" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "경의선",
 		"id": "lineKU",
 		"style" : {
@@ -841,7 +841,7 @@
 				{ "id": "K312", "coordinates": [ 247,231 ], "label": "공덕", "labelPosition": "s" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "신분당선",
 		"id": "lineSB",
 		"style" : {
@@ -865,7 +865,7 @@
 				{ "id": "D12", "coordinates": [ 607,481 ], "label": "정자", "labelPosition": "n" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "공항철도",
 		"id": "lineAir",
 		"style" : {
@@ -893,7 +893,7 @@
 				{ "id": "A01", "coordinates": [ 288,233 ], "label": "서울역", "labelPosition": "ne" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "인천1호선",
 		"id": "lineI1",
 		"style" : {
@@ -940,7 +940,7 @@
 				{ "id": "I138", "coordinates": [ 355,662 ], "label": "국제업무지구", "labelPosition": "s" }
 			]
 		]
-	}, { 
+	}, {
 		"name": "에버라인",
 		"id": "lineEv",
 		"style" : {
