@@ -1,11 +1,8 @@
 ( function ( $, window ) {
 	var document = window.document,
 		svgNameSpace = "http://www.w3.org/2000/svg",
-		DEFAULT_STYLE = {
-			exchangeRadius: 6,
-			stationRadius: 4
-		},
-		regId = new RegExp( "\\bui-id-([\\w-]+)\\b" );
+		regId = /\bui-id-([\w\-]+)\b/,
+		regNode = /([a-z])([A-Z])/g;
 
 	$.widget( "mobile.routemap", $.mobile.widget, {
 		options: {
@@ -49,15 +46,16 @@
 
 			routemapContainer.on( "vclick", function ( event ) {
 				var target = $( event.target ),
-					targetId,
-					namespaceURI = target[0].namespaceURI;
-				if ( namespaceURI.indexOf("svg") > -1 ){
+					targetId;
+
+				if ( target[0].namespaceURI.indexOf("svg") > -1 ){
 					if ( self._hasClass( target, "ui-line" ) ) {
 						targetId = regId.exec( target.attr( "class" ) );
 					}
 				} else if ( target.hasClass( "ui-shape" ) || target.hasClass( "ui-label" ) ) {
 					targetId = regId.exec( target.parent().attr( "class" ) );
 				}
+
 				target.trigger( "select", targetId ? targetId[1] : undefined );
 			} );
 		},
@@ -128,9 +126,7 @@
 				station,
 				exchange,
 				stationStyle,
-				stationRadius = data.stationRadius || DEFAULT_STYLE.stationRadius,
 				exchangeStyle = data.exchangeStyle || {},
-				exchangeRadius = data.exchangeRadius || DEFAULT_STYLE.exchangeRadius,
 				lineStyle,
 				coord,
 				minX = 9999,
@@ -156,8 +152,8 @@
 
 			for ( i = 0; i < lines.length; i += 1 ) {
 				branches = lines[i].branches;
-				stationStyle = lines[i].style.station || {},
-				lineStyle = lines[i].style.line || {},
+				stationStyle = lines[i].style.station || {};
+				lineStyle = lines[i].style.line || {};
 				this._nameList[ lines[i].id ] = lines[i].name;
 
 				for ( j = 0; j < branches.length; j += 1 ) {
@@ -195,7 +191,6 @@
 
 						if ( !this._stationsMap[coord[0]][coord[1]] ) {
 							station.style = stationStyle;
-							station.radius = stationRadius;
 							station.transfer = [];
 							this._stationsMap[coord[0]][coord[1]] = station;
 							this._stations.push( station );
@@ -203,7 +198,6 @@
 							exchange = this._stationsMap[coord[0]][coord[1]];
 							if ( !exchange.transfer.length ) {
 								exchange.style = exchangeStyle;
-								exchange.radius = exchangeRadius;
 							}
 							exchange.transfer.push( station.id );
 							graph[station.id][exchange.id] = "TRANSPER";
@@ -300,12 +294,13 @@
 				labelPosition = [0, 0],
 				labelAngle = 0,
 				stationName,
-				className,
-				stationborder,
+				classes,
 				top, left, key,
 				$stationGroup,
 				$stationCircle,
 				$textSpan,
+				textSpanWidth,
+				textSpanHeight,
 				$routemapContainer = this.element.find( ".ui-routemap-container" ),
 				$stationsDiv = $( "<div class='ui-routemap-div'></div>" ).appendTo( $routemapContainer );
 
@@ -314,12 +309,12 @@
 				label = station.label;
 				coordinates = station.coordinates;
 				position = [unit * coordinates[0], unit * coordinates[1] ];
-				className = "ui-station ui-id-" + station.id;
+				classes = "ui-station ui-id-" + station.id;
 				
 				if ( station.transfer.length ) {
-					className += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
+					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
 				}
-				$stationGroup = $( "<div></div>" ).appendTo( $stationsDiv ).addClass( className );
+				$stationGroup = $( "<div class='" + classes + "''></div>" ).appendTo( $stationsDiv );
 				$stationCircle = $( "<div class='ui-shape'></div>" ).appendTo( $stationGroup );
 				
 				if ( station.style ) {
@@ -327,53 +322,54 @@
 						$stationCircle.css( key, station.style[key] );
 					}
 				}
-				stationborder = $stationCircle.outerWidth(true) - $stationCircle.innerWidth();
-				stationRadius = $stationCircle.width() / 2;
+
+				stationRadius = $stationCircle.outerWidth() / 2;
 				top = position[1];
 				left = position[0];
 				$stationCircle.css( {
-					"top" : top - stationRadius - stationborder / 2,
-					"left" : left - stationRadius - stationborder / 2
+					"top" : top - stationRadius,
+					"left" : left - stationRadius
 				} );
 
-				labelAngle = ( station.labelAngle ) ? -parseInt( station.labelAngle, 10 ) : 0;
+				labelAngle = station.labelAngle ? -parseInt( station.labelAngle, 10 ) : 0;
 				stationName = this._languageData ? ( this._languageData[label] || label ) : label;
 				$textSpan = $( "<span class='ui-label'>"+ stationName +"</span>" ).appendTo( $stationGroup );
-				top -= $textSpan.outerHeight(true) / 2 ;
+				textSpanWidth = $textSpan.outerWidth( true );
+				textSpanHeight = $textSpan.outerHeight( true );
+				top -= textSpanHeight / 2 ;
 
 				switch ( station.labelPosition || "s" ) {
 				case "w" :
-					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top ];
+					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top ];
 					break;
 				case "nw" :
-					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top - $textSpan.outerHeight(true) ];
+					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top - textSpanHeight ];
 					break;
 				case "sw" :
-					labelPosition = [ left - stationRadius * 3 / 2 - $textSpan.outerWidth(true), top + $textSpan.outerHeight(true) ];
+					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top + textSpanHeight ];
 					break;
 				case "e" :
 					labelPosition = [ left + stationRadius * 3 / 2, top ];
 					break;
 				case "ne" :
-					labelPosition = [ left + stationRadius * 3 / 2, top - $textSpan.outerHeight(true) ];
+					labelPosition = [ left + stationRadius * 3 / 2, top - textSpanHeight ];
 					break;
 				case "se" :
-					labelPosition = [ left + stationRadius * 3 / 2, top + $textSpan.outerHeight(true) ];
+					labelPosition = [ left + stationRadius * 3 / 2, top + textSpanHeight ];
 					break;
 				case "s" :
-					labelPosition = [ left - $textSpan.outerWidth(true) / 2, top + $textSpan.outerHeight(true) ];
+					labelPosition = [ left - textSpanWidth / 2, top + textSpanHeight ];
 					break;
 				case "n" :
-					labelPosition = [ left - $textSpan.outerWidth(true) / 2, top - $textSpan.outerHeight(true) ];
+					labelPosition = [ left - textSpanWidth / 2, top - textSpanHeight ];
 					break;
 				}
 
 				$textSpan.css( {
 					"top" : labelPosition[1],
 					"left" : labelPosition[0],
-					"transform-origin" : "0% 50%",
 					"transform" : "rotate( " + labelAngle + "deg )"
-				});
+				} );
 			}
 		},
 
@@ -389,18 +385,20 @@
 			for ( key in settings ) {
 				value = settings[key];
 				if ( value && ( typeof value !== "string" || value !== "" ) ) {
-					node.setAttribute( key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase(), value);
+					node.setAttribute( key.replace( regNode, "$1-$2" ).toLowerCase(), value);
 				}
 			}
+
 			if ( style ) {
 				for ( key in style ) {
 					value = style[key];
 					if ( value && ( typeof value !== "string" || value !== "" ) ) {
-						string += key.replace( /([a-z])([A-Z])/g, "$1-$2" ).toLowerCase() + ":" + value + ";";
+						string += key.replace( regNode, "$1-$2" ).toLowerCase() + ":" + value + ";";
 					}
 				}
 				node.setAttribute( "style", string );
 			}
+
 			parent.appendChild( node );
 			return node;
 		},
@@ -496,7 +494,7 @@
 					costE = adjacentNodes[v];
 
 					if ( costE === "TRANSPER" ) {
-						costE = isMinimumTransfersMode ? 999 : 5;
+						costE = isMinimumTransfersMode ? 999 : 3;
 					}
 
 					costUTotal = costU + costE;
