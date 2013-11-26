@@ -1,6 +1,6 @@
 /* basic style*/
 .ui-routemap {
-	font-size: 0.77rem;
+	font-size: 0.6rem;
 }
 .ui-routemap .ui-line {
 	fill: none;
@@ -37,7 +37,7 @@
 }
 .ui-routemap .ui-highlight .ui-label {
 	font-weight: bold;
-	font-size: 1.2rem;
+	font-size: 0.77rem;
 }
 
 /* highlight effect */
