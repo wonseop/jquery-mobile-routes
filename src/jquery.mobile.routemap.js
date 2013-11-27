@@ -24,14 +24,16 @@
 		_create: function () {
 			var self = this,
 				view = self.element,
-				routemapContainer = $( "<div class='ui-routemap-container'>" ).appendTo( view );
+				routemapContainer = $( "<div class='ui-routemap-container'>" )
+					.append( "<div class='ui-station-container'></div>" )
+					.appendTo( view );
 
 			self._svg = $( document.createElementNS( svgNameSpace, "svg" ) )
 				.attr( {
 					"version": "1.1",
 					"width": "100%",
 					"height": "100%",
-					"class": "ui-routemap-svg"
+					"class": "ui-line-container"
 				} ).appendTo( routemapContainer )[0];
 
 			view.addClass( "ui-routemap" );
@@ -57,6 +59,8 @@
 				}
 
 				target.trigger( "select", targetId ? targetId[1] : undefined );
+
+				event.stopPropagation();
 			} );
 		},
 
@@ -92,12 +96,14 @@
 				}
 
 				data = option.db;
+
 				if ( !data || !data.match(/\.(json)$/i) ) {
 					return;
 				}
 
 				data = data.substring( data.lastIndexOf("\\") + 1, data.lastIndexOf(".") ) +
 						"." + value + "." + data.substring( data.lastIndexOf(".") + 1, data.length );
+
 				$.ajax( {
 					async: false,
 					global: false,
@@ -106,6 +112,7 @@
 				} ).done( function ( result ) {
 					self._languageData = result;
 				} );
+
 				break;
 			}
 		},
@@ -114,6 +121,8 @@
 			while ( this._svg.firstChild ) {
 				this._svg.removeChild( this._svg.firstChild );
 			}
+
+			$( ".ui-station-container" ).empty();
 		},
 
 		_processData: function ( data ) {
@@ -142,12 +151,8 @@
 				controlPoint = [],
 				graph= {},
 				routemapContainer = this.element.find( ".ui-routemap-container" ),
-				marginTop = parseInt( routemapContainer.css( "marginTop" ), 10 ) || 0,
-				marginBottom = parseInt( routemapContainer.css( "marginBottom" ), 10 ) || 0,
-				marginLeft = parseInt( routemapContainer.css( "marginLeft" ), 10 ) || 0,
-				marginRight = parseInt( routemapContainer.css( "marginRight" ), 10 ) || 0,
 				convertCoord = function ( pos ) {
-					return ( unit * pos );
+					return unit * pos;
 				};
 
 			for ( i = 0; i < lines.length; i += 1 ) {
@@ -236,8 +241,8 @@
 			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
-			routemapContainer.width( ( maxX + minX ) * unit + marginLeft + marginRight )
-				.height( ( maxY + minY ) * unit + marginTop + marginBottom );
+			routemapContainer.width( convertCoord( maxX ) )
+				.height( convertCoord( maxY ) );
 		},
 
 		_drawLines: function () {
@@ -258,7 +263,7 @@
 				namelist = this._nameList,
 				lineId = "",
 				y_weight,
-				labelHeight = this.element.find(".ui-label").outerHeight(true),
+				labelHeight = this.element.find( ".ui-label" ).outerHeight( true ),
 				group = this._node( null, "g", { "class": "ui-legend"} );
 
 			for ( i = 0; i < length; i +=1 ) {
@@ -296,13 +301,12 @@
 				stationName,
 				classes,
 				top, left, key,
-				$stationGroup,
+				$station,
 				$stationCircle,
 				$textSpan,
 				textSpanWidth,
 				textSpanHeight,
-				$routemapContainer = this.element.find( ".ui-routemap-container" ),
-				$stationsDiv = $( "<div class='ui-routemap-div'></div>" ).appendTo( $routemapContainer );
+				$stationContainer = this.element.find( ".ui-station-container" );
 
 			for ( i = 0; i < stations.length; i += 1 ) {
 				station = stations[i];
@@ -310,13 +314,14 @@
 				coordinates = station.coordinates;
 				position = [unit * coordinates[0], unit * coordinates[1] ];
 				classes = "ui-station ui-id-" + station.id;
-				
+
 				if ( station.transfer.length ) {
 					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
 				}
-				$stationGroup = $( "<div class='" + classes + "''></div>" ).appendTo( $stationsDiv );
-				$stationCircle = $( "<div class='ui-shape'></div>" ).appendTo( $stationGroup );
-				
+
+				$station = $( "<div class='" + classes + "'></div>" ).appendTo( $stationContainer );
+				$stationCircle = $( "<div class='ui-shape'></div>" ).appendTo( $station );
+
 				if ( station.style ) {
 					for ( key in station.style ) {
 						$stationCircle.css( key, station.style[key] );
@@ -333,7 +338,7 @@
 
 				labelAngle = station.labelAngle ? -parseInt( station.labelAngle, 10 ) : 0;
 				stationName = this._languageData ? ( this._languageData[label] || label ) : label;
-				$textSpan = $( "<span class='ui-label'>"+ stationName +"</span>" ).appendTo( $stationGroup );
+				$textSpan = $( "<span class='ui-label'>"+ stationName +"</span>" ).appendTo( $station );
 				textSpanWidth = $textSpan.outerWidth( true );
 				textSpanHeight = $textSpan.outerHeight( true );
 				top -= textSpanHeight / 2 ;
@@ -525,6 +530,26 @@
 			return { path: nodes, cost: destCost };
 		},
 
+		_findBestRoute: function ( source, destination, isMinimumTransfersMode ) {
+			var i = 0, j = 0, route,
+				result = { cost: 9999 },
+				sources = this.getIdsByName( this.getNameById( source ) ),
+				destinations = this.getIdsByName( this.getNameById( destination ) ),
+				sourcesLength = sources.length,
+				destinationsLength = destinations.length;
+
+			for ( i = 0; i < sourcesLength; i++ ) {
+				for ( j = 0; j < destinationsLength; j++ ) {
+					route = this._calculateShortestPath( this._graph, sources[i], destinations[j], isMinimumTransfersMode );
+					if ( result.cost > route.cost ) {
+						result = route;
+					}
+				}
+			}
+
+			return result.path;
+		},
+
 		// -------------------------------------------------
 		// Public
 
@@ -544,27 +569,11 @@
 		},
 
 		shortestRoute: function ( source, destination ) {
-			return this._calculateShortestPath( this._graph, source, destination ).path;
+			return this._findBestRoute( source, destination );
 		},
 
 		minimumTransfers: function ( source, destination ) {
-			var i = 0, j = 0, route,
-				result = { cost: 9999 },
-				sources = this.getIdsByName( this.getNameById( source ) ),
-				destinations = this.getIdsByName( this.getNameById( destination ) ),
-				sourcesLength = sources.length,
-				destinationsLength = destinations.length;
-
-			for ( i = 0; i < sourcesLength; i++ ) {
-				for ( j = 0; j < destinationsLength; j++ ) {
-					route = this._calculateShortestPath( this._graph, sources[i], destinations[j], true );
-					if ( result.cost > route.cost ) {
-						result = route;
-					}
-				}
-			}
-
-			return result.path;
+			return this._findBestRoute( source, destination, true );
 		},
 
 		highlight: function ( target ) {
