@@ -113,9 +113,14 @@
 		},
 		"branches": [
 			[
-				{ "id": "51", "coordinates": [ 10, 1 ], "label": "51", "labelPosition": "ne", "labelAngle": 45 },
-				{ "id": "52", "coordinates": [ 10, 2 ], "label": "52", "labelPosition": "ne", "labelAngle": 45 },
-				{ "id": "53", "coordinates": [ 10, 3 ], "label": "53", "labelPosition": "ne", "labelAngle": 45 }
+				{ "id": "51", "coordinates": [ 9, 1 ], "label": "51", "labelPosition": "e", "labelAngle": 0 },
+				{ "id": "52", "coordinates": [ 9, 2 ], "label": "52", "labelPosition": "w", "labelAngle": 0 },
+				{ "id": "53", "coordinates": [ 9, 3 ], "label": "53", "labelPosition": "n", "labelAngle": 0 },
+				{ "id": "54", "coordinates": [ 9, 4 ], "label": "36(ex)", "labelPosition": "s", "labelAngle": 0 },
+				{ "id": "55", "coordinates": [ 9, 5 ], "label": "55", "labelPosition": "ne", "labelAngle": 0 },
+				{ "id": "56", "coordinates": [ 9, 6 ], "label": "56", "labelPosition": "nw", "labelAngle": 0 },
+				{ "id": "57", "coordinates": [ 9, 7 ], "label": "57", "labelPosition": "se", "labelAngle": 0 },
+				{ "id": "58", "coordinates": [ 9, 8 ], "label": "58", "labelPosition": "sw", "labelAngle": 0 }
 			]
 		]
 	}]
