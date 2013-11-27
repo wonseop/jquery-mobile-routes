@@ -341,7 +341,7 @@
 				$textSpan = $( "<span class='ui-label'>"+ stationName +"</span>" ).appendTo( $station );
 				textSpanWidth = $textSpan.outerWidth( true );
 				textSpanHeight = $textSpan.outerHeight( true );
-				top -= textSpanHeight / 2 ;
+				top -= textSpanHeight / 2;
 
 				switch ( station.labelPosition || "s" ) {
 				case "w" :
