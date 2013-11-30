@@ -2,7 +2,7 @@
 	var document = window.document,
 		svgNameSpace = "http://www.w3.org/2000/svg",
 		regId = /\bui-id-([\w\-]+)\b/,
-		regNode = /([a-z])([A-Z])/g;
+		regAttr = /([a-z])([A-Z])/g;
 
 	$.widget( "mobile.routemap", $.mobile.widget, {
 		options: {
@@ -17,7 +17,6 @@
 		_languageData: null,
 		_lines: [],
 		_stations: [],
-		_stationsMap: [],
 		_nameList: {},
 		_graph: {},
 
@@ -138,6 +137,8 @@
 				exchangeStyle = data.exchangeStyle || {},
 				lineStyle,
 				coord,
+				exchanges = {},
+				stationsMap = [],
 				minX = 9999,
 				minY = 9999,
 				maxX = 0,
@@ -151,6 +152,10 @@
 				controlPoint = [],
 				graph= {},
 				routemapContainer = this.element.find( ".ui-routemap-container" ),
+				marginTop = parseInt( routemapContainer.css( "marginTop" ), 10 ) || 0,
+				marginBottom = parseInt( routemapContainer.css( "marginBottom" ), 10 ) || 0,
+				marginLeft = parseInt( routemapContainer.css( "marginLeft" ), 10 ) || 0,
+				marginRight = parseInt( routemapContainer.css( "marginRight" ), 10 ) || 0,
 				convertCoord = function ( pos ) {
 					return unit * pos;
 				};
@@ -181,6 +186,10 @@
 							graph[station.id][branch[k + 1].id] = 3;
 						}
 
+						if ( !stationsMap[coord[0]] ) {
+							stationsMap[coord[0]] = [];
+						}
+
 						// info
 						minX = ( minX > coord[0] ) ? coord[0] : minX;
 						minY = ( minY > coord[1] ) ? coord[1] : minY;
@@ -188,23 +197,31 @@
 						maxY = ( maxY < coord[1] ) ? coord[1] : maxY;
 
 						//stations
-						if ( !this._stationsMap[coord[0]] ) {
-							this._stationsMap[coord[0]] = [];
-						}
+						this._nameList[station.id] = station.label;
 
-						this._nameList[ station.id ] = station.label;
-
-						if ( !this._stationsMap[coord[0]][coord[1]] ) {
+						if ( !exchanges[station.label] ) {
 							station.style = stationStyle;
 							station.transfer = [];
-							this._stationsMap[coord[0]][coord[1]] = station;
+							exchanges[station.label] = station;
+							stationsMap[coord[0]][coord[1]] = station;
 							this._stations.push( station );
-						} else {
-							exchange = this._stationsMap[coord[0]][coord[1]];
+						} else if ( exchanges[station.label].id !== station.id ) {
+							exchange = exchanges[station.label];
+
 							if ( !exchange.transfer.length ) {
 								exchange.style = exchangeStyle;
 							}
+
 							exchange.transfer.push( station.id );
+
+							if ( !stationsMap[coord[0]][coord[1]] ) {
+								station.style = exchangeStyle;
+								stationsMap[coord[0]][coord[1]] = station;
+								station.transfer = exchange.transfer;
+								station.bridge = exchange.id;
+								this._stations.push( station );
+							}
+
 							graph[station.id][exchange.id] = "TRANSPER";
 							graph[exchange.id][station.id] = "TRANSPER";
 						}
@@ -241,8 +258,8 @@
 			this._drawingRange = [ minX, minY, maxX, maxY ];
 			this._graph = graph;
 
-			routemapContainer.width( convertCoord( maxX ) )
-				.height( convertCoord( maxY ) );
+			routemapContainer.width( convertCoord( maxX ) + marginLeft + marginRight )
+				.height( convertCoord( maxY ) + marginTop + marginBottom );
 		},
 
 		_drawLines: function () {
@@ -312,11 +329,15 @@
 				station = stations[i];
 				label = station.label;
 				coordinates = station.coordinates;
-				position = [unit * coordinates[0], unit * coordinates[1] ];
-				classes = "ui-station ui-id-" + station.id;
+				position = [unit * coordinates[0], unit * coordinates[1]];
+				classes = "ui-station";
 
 				if ( station.transfer.length ) {
-					classes += " ui-id-" + station.transfer.join( " ui-id-" ) + " ui-exchange";
+					classes += " ui-id-" + ( station.bridge || station.id ) +
+						" ui-id-" + station.transfer.join( " ui-id-" ) +
+						" ui-exchange";
+				} else {
+					classes += " ui-id-" + station.id;
 				}
 
 				$station = $( "<div class='" + classes + "'></div>" ).appendTo( $stationContainer );
@@ -348,19 +369,19 @@
 					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top ];
 					break;
 				case "nw" :
-					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top - textSpanHeight ];
+					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top - textSpanHeight / 2 ];
 					break;
 				case "sw" :
-					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top + textSpanHeight ];
+					labelPosition = [ left - stationRadius * 3 / 2 - textSpanWidth, top + textSpanHeight / 2 ];
 					break;
 				case "e" :
 					labelPosition = [ left + stationRadius * 3 / 2, top ];
 					break;
 				case "ne" :
-					labelPosition = [ left + stationRadius * 3 / 2, top - textSpanHeight ];
+					labelPosition = [ left + stationRadius * 3 / 2, top - textSpanHeight / 2 ];
 					break;
 				case "se" :
-					labelPosition = [ left + stationRadius * 3 / 2, top + textSpanHeight ];
+					labelPosition = [ left + stationRadius * 3 / 2, top + textSpanHeight / 2 ];
 					break;
 				case "s" :
 					labelPosition = [ left - textSpanWidth / 2, top + textSpanHeight ];
@@ -383,6 +404,7 @@
 
 		_node: function ( parent, name, settings, style ) {
 			var node, key, value, string = "";
+
 			parent = parent || this._svg;
 			node = parent.ownerDocument.createElementNS( svgNameSpace, name );
 			settings = settings || {};
@@ -390,7 +412,7 @@
 			for ( key in settings ) {
 				value = settings[key];
 				if ( value && ( typeof value !== "string" || value !== "" ) ) {
-					node.setAttribute( key.replace( regNode, "$1-$2" ).toLowerCase(), value);
+					node.setAttribute( key.replace( regAttr, "$1-$2" ).toLowerCase(), value);
 				}
 			}
 
@@ -398,7 +420,7 @@
 				for ( key in style ) {
 					value = style[key];
 					if ( value && ( typeof value !== "string" || value !== "" ) ) {
-						string += key.replace( regNode, "$1-$2" ).toLowerCase() + ":" + value + ";";
+						string += key.replace( regAttr, "$1-$2" ).toLowerCase() + ":" + value + ";";
 					}
 				}
 				node.setAttribute( "style", string );
@@ -430,6 +452,7 @@
 
 		_removeClass: function ( elements, className ) {
 			var element, classAttr;
+
 			$.each( elements, function () {
 				element = $( this );
 				if ( element[0].namespaceURI.indexOf( "svg" ) === -1 ) {
@@ -582,6 +605,7 @@
 			if ( !this._svg || !target ) {
 				return;
 			}
+
 			view = this.element;
 			targetLength = target.length;
 
@@ -610,10 +634,8 @@
 		},
 
 		refresh: function ( redraw ) {
-			var view, routemapContainer;
-
-			view = this.element;
-			routemapContainer = view.find( "ui-routemap-container" );
+			var view = this.element,
+				routemapContainer = view.find( "ui-routemap-container" );
 
 			if ( routemapContainer.width() !== view.width() ) {
 				routemapContainer.width( view.width() );
