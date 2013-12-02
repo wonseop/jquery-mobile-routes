@@ -247,7 +247,7 @@
 				{ "id": "336", "coordinates": [ 423, 298 ], "label": "압구정", "labelPosition": "e" },
 				{ "id": "337", "coordinates": [ 423, 314 ], "label": "신사", "labelPosition": "e" },
 				{ "id": "338", "coordinates": [ 423, 332 ], "label": "잠원", "labelPosition": "e" },
-				{ "id": "339", "coordinates": [ 423, 340 ], "label": "고속터미널", "labelPosition": "sw" },
+				{ "id": "339", "coordinates": [ 423, 347 ], "label": "고속터미널", "labelPosition": "sw" },
 				{ "id": "340", "coordinates": [ 423, 380 ], "label": "교대", "labelPosition": "nw" },
 				{ "id": "341", "coordinates": [ 427, 394 ], "label": "남부터미널", "labelPosition": "sw" },
 				{ "id": "342", "coordinates": [ 444, 399 ], "label": "양재", "labelPosition": "sw" },
