@@ -151,9 +151,9 @@
 				{ "id": "211", "coordinates": [ 532, 246 ], "label": "성수", "labelPosition": "w" }
 			], [
 				{ "id": "234", "coordinates": [ 149, 328 ], "label": "신도림", "labelPosition": "e" },
-				{ "id": "234-1", "coordinates": [ 122, 323 ], "label": "도림천", "labelPosition": "se" },
-				{ "id": "234-2", "coordinates": [ 110, 311 ], "label": "양천구청", "labelPosition": "se" },
-				{ "id": "234-3", "coordinates": [ 98, 300 ], "label": "신정네거리", "labelPosition": "se" },
+				{ "id": "234-1", "coordinates": [ 122, 323 ], "label": "도림천", "labelPosition": "w" },
+				{ "id": "234-2", "coordinates": [ 110, 311 ], "label": "양천구청", "labelPosition": "w" },
+				{ "id": "234-3", "coordinates": [ 98, 300 ], "label": "신정네거리", "labelPosition": "w" },
 				{ "id": "234-4", "coordinates": [ 86, 285 ], "label": "까치산", "labelPosition": "w" }
 			], [
 				{ "id": "211", "coordinates": [ 532, 246 ], "label": "성수", "labelPosition": "w" },
@@ -447,9 +447,9 @@
 				{ "id": "621", "coordinates": [ 149, 188 ], "label": "망원", "labelPosition": "e" },
 				{ "id": "620", "coordinates": [ 149, 172 ], "label": "마포구청", "labelPosition": "e" },
 				{ "id": "619", "coordinates": [ 159, 149 ], "label": "월드컵경기장", "labelPosition": "se" },
-				{ "id": "618", "coordinates": [ 171, 136 ], "label": "디지털미디어시티", "labelPosition": "n" },
-				{ "id": "617", "coordinates": [ 181, 126 ], "label": "증산", "labelPosition": "se" },
-				{ "id": "616", "coordinates": [ 192, 116 ], "label": "새절", "labelPosition": "se" },
+				{ "id": "618", "coordinates": [ 171, 136 ], "label": "디지털미디어시티", "labelPosition": "e" },
+				{ "id": "617", "coordinates": [ 181, 126 ], "label": "증산", "labelPosition": "nw" },
+				{ "id": "616", "coordinates": [ 192, 116 ], "label": "새절", "labelPosition": "nw" },
 				{ "id": "610", "coordinates": [ 203, 103 ], "label": "응암", "labelPosition": "nw" },
 				{ "id": "611", "coordinates": [ 225, 110 ], "label": "역촌", "labelPosition": "s" },
 				{ "id": "612", "coordinates": [ 257, 108 ], "label": "불광", "labelPosition": "s" },
@@ -555,9 +555,9 @@
 				{ "id": "818", "coordinates": [ 556,384 ], "label": "문정", "labelPosition": "ne" },
 				{ "id": "819", "coordinates": [ 568,395 ], "label": "장지", "labelPosition": "ne" },
 				{ "id": "820", "coordinates": [ 582,411 ], "label": "복정", "labelPosition": "n" },
-				{ "id": "821", "coordinates": [ 609,412 ], "label": "산성", "labelPosition": "s" },
+				{ "id": "821", "coordinates": [ 609,412 ], "label": "산성", "labelPosition": "n" },
 				{ "id": "822", "coordinates": [ 631,412 ], "label": "남한산성입구", "labelPosition": "s" },
-				{ "id": "823", "coordinates": [ 653,412 ], "label": "단대오거리", "labelPosition": "s" },
+				{ "id": "823", "coordinates": [ 653,412 ], "label": "단대오거리", "labelPosition": "n" },
 				{ "id": "824", "coordinates": [ 666,415 ], "label": "신흥", "labelPosition": "ne" },
 				{ "id": "825", "coordinates": [ 671,427 ], "label": "수진", "labelPosition": "e" },
 				{ "id": "826", "coordinates": [ 669,441 ], "label": "모란", "labelPosition": "e" }
@@ -596,7 +596,7 @@
 				{ "id": "916", "coordinates": [ 225,269 ], "label": "샛강", "labelPosition": "n" },
 				{ "id": "917", "coordinates": [ 239,281 ], "label": "노량진", "labelPosition": "s" },
 				{ "id": "918", "coordinates": [ 268,313 ], "label": "노들", "labelPosition": "sw" },
-				{ "id": "919", "coordinates": [ 291,323 ], "label": "흑석(중앙대입구)", "labelPosition": "n" },
+				{ "id": "919", "coordinates": [ 291,323 ], "label": "흑석(중앙대입구)", "labelPosition": "ne" },
 				{ "id": "920", "coordinates": [ 343,324 ], "label": "동작", "labelPosition": "ne" },
 				{ "id": "921", "coordinates": [ 375,324 ], "label": "구반포", "labelPosition": "n" },
 				{ "id": "922", "coordinates": [ 399,324 ], "label": "신반포", "labelPosition": "n" },
@@ -829,8 +829,8 @@
 				{ "id": "K321", "coordinates": [ 123,91 ], "label": "능곡", "labelPosition": "w" },
 				{ "id": "K320", "coordinates": [ 123,103 ], "label": "행신", "labelPosition": "w" },
 				{ "id": "K318", "coordinates": [ 123,114 ], "label": "화전", "labelPosition": "w" },
-				{ "id": "K317", "coordinates": [ 147,136 ], "label": "수색", "labelPosition": "n" },
-				{ "id": "K316", "coordinates": [ 171,136 ], "label": "디지털미디어시티", "labelPosition": "n" },
+				{ "id": "K317", "coordinates": [ 147,136 ], "label": "수색", "labelPosition": "s" },
+				{ "id": "K316", "coordinates": [ 171,136 ], "label": "디지털미디어시티", "labelPosition": "e" },
 				{ "id": "K315", "coordinates": [ 200,158 ], "label": "가좌", "labelPosition": "e" },
 				{ "id": "P312", "coordinates": [ 232,178 ], "label": "신촌(경의선)", "labelPosition": "n" },
 				{ "id": "P313", "coordinates": [ 288,233 ], "label": "서울역", "labelPosition": "ne" }
@@ -887,7 +887,7 @@
 				{ "id": "A07", "coordinates": [ 35,281 ], "label": "검암", "labelPosition": "ne" },
 				{ "id": "A06", "coordinates": [ 44,294 ], "label": "계양", "labelPosition": "e" },
 				{ "id": "A05", "coordinates": [ 63, 168 ], "label": "김포공항", "labelPosition": "e" },
-				{ "id": "A04", "coordinates": [ 171,136 ], "label": "디지털미디어시티", "labelPosition": "n" },
+				{ "id": "A04", "coordinates": [ 171,136 ], "label": "디지털미디어시티", "labelPosition": "e" },
 				{ "id": "A03", "coordinates": [ 186,192 ], "label": "홍대입구", "labelPosition": "ne" },
 				{ "id": "A02", "coordinates": [ 247,231 ], "label": "공덕", "labelPosition": "s" },
 				{ "id": "A01", "coordinates": [ 288,233 ], "label": "서울역", "labelPosition": "ne" }
